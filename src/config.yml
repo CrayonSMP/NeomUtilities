@@ -7,6 +7,18 @@ duralki:
   # Sounds - self explanatory.
   break-sound: ENTITY_ITEM_BREAK
   transfer-sound: BLOCK_AMETHYST_BLOCK_CHIME
+  # Blacklist of items that will not be drillable (Minecraft and CraftEngine Item IDs).
+  blacklisted-tools: [
+    "neom:gauntlet"
+  ]
 
 gauntlet:
   item-id: "neom:gauntlet"
+  drillable-blocks:
+    - STONE
+    - COBBLESTONE
+    - TUFF
+    - INFESTED_STONE
+    - GRANITE
+    - DIORITE
+    - ANDESITE

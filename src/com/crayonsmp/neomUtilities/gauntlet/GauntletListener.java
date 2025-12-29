@@ -35,84 +35,13 @@ public class GauntletListener implements Listener {
     private final NamespacedKey fuel;
     private final Map<Block, BlockFace> interactedBlockFaces = new ConcurrentHashMap<>();
 
-    List<Material> drillableMaterials = List.of(
-            Material.STONE,
-            Material.COBBLESTONE,
-            Material.TUFF,
-            Material.INFESTED_STONE,
-            Material.GRANITE,
-            Material.DIORITE,
-            Material.ANDESITE,
-            Material.COAL_ORE,
-            Material.COPPER_ORE,
-            Material.IRON_ORE,
-            Material.GOLD_ORE,
-            Material.REDSTONE_ORE,
-            Material.LAPIS_ORE,
-            Material.DIAMOND_ORE,
-            Material.EMERALD_ORE,
-            Material.DEEPSLATE,
-            Material.INFESTED_DEEPSLATE,
-            Material.DEEPSLATE_COAL_ORE,
-            Material.DEEPSLATE_COPPER_ORE,
-            Material.DEEPSLATE_IRON_ORE,
-            Material.DEEPSLATE_GOLD_ORE,
-            Material.DEEPSLATE_REDSTONE_ORE,
-            Material.DEEPSLATE_LAPIS_ORE,
-            Material.DEEPSLATE_DIAMOND_ORE,
-            Material.DEEPSLATE_EMERALD_ORE,
-            Material.BLACKSTONE,
-            Material.BASALT,
-            Material.SMOOTH_BASALT,
-            Material.CALCITE,
-            Material.AMETHYST_BLOCK,
-            Material.BUDDING_AMETHYST,
-            Material.BROWN_TERRACOTTA,
-            Material.TERRACOTTA,
-            Material.WHITE_TERRACOTTA,
-            Material.LIGHT_GRAY_TERRACOTTA,
-            Material.RED_TERRACOTTA,
-            Material.ORANGE_TERRACOTTA,
-            Material.YELLOW_TERRACOTTA,
-            Material.MAGMA_BLOCK,
-            Material.CRIMSON_NYLIUM,
-            Material.WARPED_NYLIUM,
-            Material.NETHERRACK,
-            Material.NETHER_GOLD_ORE,
-            Material.NETHER_QUARTZ_ORE,
-            Material.DRIPSTONE_BLOCK,
-            Material.SANDSTONE,
-            Material.RED_SANDSTONE,
-            Material.ICE,
-            Material.PACKED_ICE,
-            Material.BLUE_ICE,
-            Material.RAW_IRON_BLOCK,
-            Material.RAW_COPPER_BLOCK,
-            Material.RAW_GOLD_BLOCK,
-            Material.END_STONE,
-            Material.POLISHED_BLACKSTONE_BRICKS,
-            Material.CRACKED_POLISHED_BLACKSTONE_BRICKS,
-            Material.POLISHED_BLACKSTONE,
-            Material.CHISELED_POLISHED_BLACKSTONE,
-            Material.POLISHED_BASALT,
-            Material.PURPUR_BLOCK,
-            Material.PURPUR_PILLAR,
-            Material.PRISMARINE,
-            Material.DARK_PRISMARINE,
-            Material.NETHER_BRICKS,
-            Material.CHISELED_NETHER_BRICKS,
-            Material.GILDED_BLACKSTONE,
-            Material.SANDSTONE,
-            Material.BRICKS,
-            Material.TUFF_BRICKS,
-            Material.CHISELED_TUFF,
-            Material.POLISHED_TUFF
-    );
+    List<Material> drillableMaterials = new ArrayList<>();
 
 
     public GauntletListener(Plugin plugin) {
         this.plugin = plugin;
 
+        NeomUtilities.getInstance().getConfig().getStringList("gauntlet.drillable-blocks").forEach(material -> drillableMaterials.add(Material.getMaterial(material)));
         this.fuel = NamespacedKey.fromString("abilities", this.plugin);
     }
 
