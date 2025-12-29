@@ -30,6 +30,6 @@ bin/
 .DS_Store
 
 *.xml
-.idea
+.idea/
 *.iml
 .gitignore

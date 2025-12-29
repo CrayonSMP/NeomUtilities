@@ -17,8 +17,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Spigot-1.21.11-API" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="craft-engine-core-0.0.66" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="craft-engine-bukkit-0.0.66" level="project" />
+    <orderEntry type="library" name="Spigot-1.21.11-API" level="project" />
   </component>
 </module>
