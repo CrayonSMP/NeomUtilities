@@ -1,0 +1,8 @@
+name: NeomUtilities
+version: '1.0-SNAPSHOT'
+main: com.crayonsmp.neomUtilities.NeomUtilities
+api-version: '1.21'
+authors: [ TamashiiMon ]
+website: https://crayonsmp.com/
+depend:
+  - CraftEngine

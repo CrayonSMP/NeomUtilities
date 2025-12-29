@@ -1,0 +1,12 @@
+# The Duralki configs.
+duralki:
+  # The CraftEngine Item ID.
+  item-id: "neom:duralki"
+  # How much durability will transfer per tick?
+  transferrate: 20
+  # Sounds - self explanatory.
+  break-sound: ENTITY_ITEM_BREAK
+  transfer-sound: BLOCK_AMETHYST_BLOCK_CHIME
+
+gauntlet:
+  item-id: "neom:gauntlet"
