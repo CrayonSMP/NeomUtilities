@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="NeomUtilities">
-    <output-path>$PROJECT_DIR$/out/artifacts/NeomUtilities</output-path>
-    <root id="archive" name="NeomUtilitiesRefactor.jar">
-      <element id="module-output" name="NeomUtilitiesRefactor" />
-      <element id="extracted-dir" path="$USER_HOME$/JavaLiberis/Spigot-1.21.11-API.jar" path-in-jar="/" />
-    </root>
-  </artifact>
-</component>
