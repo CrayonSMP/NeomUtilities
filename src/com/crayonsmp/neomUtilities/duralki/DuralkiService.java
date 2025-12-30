@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DuralkiService {
@@ -61,11 +62,19 @@ public class DuralkiService {
     }
 
     private static boolean isToolBlacklisted(ItemStack itemStack) {
-        if (CraftEngineItems.isCustomItem(itemStack)) {
-            return NeomUtilities.getInstance().getConfig().getStringList("duralki.blacklisted-tools").contains(CraftEngineItems.getCustomItemId(itemStack).toString());
+        if (itemStack == null || itemStack.getType() == Material.AIR) {
+            return false;
         }
 
-        Material type = itemStack.getType();
-        return NeomUtilities.getInstance().getConfig().getStringList("duralki.blacklisted-tools").contains(type.getKeyOrNull().toString());
+        List<String> blacklist = NeomUtilities.getInstance().getConfig().getStringList("duralki.blacklisted-tools");
+
+        if (CraftEngineItems.isCustomItem(itemStack)) {
+            String customId = CraftEngineItems.getCustomItemId(itemStack).toString();
+            return blacklist.contains(customId);
+        }
+
+        String materialKey = itemStack.getType().getKey().toString();
+
+        return blacklist.contains(materialKey);
     }
 }

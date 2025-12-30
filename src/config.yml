@@ -12,18 +12,28 @@ duralki:
     "neom:gauntlet"
   ]
 
+# The Gauntlet configs.
 gauntlet:
+  # The CraftEngine Item ID.
   item-id: "neom:gauntlet"
+  # The Mana recharge period in ticks.
   mana-recharge-period: 20
+  # The amount of mana recharge per period.
   mana-per-period: 1
+  # The amount of mana consumed per break.
   mana-consume: 5
+  # The amount of mana capacity lost at default.
   default-mana-capacity-los: 10
+  # The amount of mana capacity lost per break.
   mana-capacity-los-per-break: 0.1
+  # The cooldown in seconds for the mana regen after breaking a block.
+  cooldown: 10
+  # The blocks that can be drilled.
   drillable-blocks:
-    - STONE
-    - COBBLESTONE
-    - TUFF
-    - INFESTED_STONE
-    - GRANITE
-    - DIORITE
-    - ANDESITE
+    - "miecraft:stone"
+    - "minecraft:cobblestone"
+    - "minecraft:tuff"
+    - "minecraft:infested_stone"
+    - "minecraft:granite"
+    - "minecraft:diorite"
+    - "minecraft:andesite"

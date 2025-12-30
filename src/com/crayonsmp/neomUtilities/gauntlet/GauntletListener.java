@@ -1,7 +1,9 @@
 package com.crayonsmp.neomUtilities.gauntlet;
 
 import com.crayonsmp.neomUtilities.NeomUtilities;
+import net.momirealms.craftengine.bukkit.api.CraftEngineBlocks;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import net.momirealms.craftengine.core.plugin.CraftEngine;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,10 +30,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -43,13 +43,22 @@ public class GauntletListener implements Listener {
     private static final NamespacedKey MANA_KEY = new NamespacedKey(NeomUtilities.getInstance(), "mana");
     private static final NamespacedKey BLOCK_BREAK_KEY = new NamespacedKey(NeomUtilities.getInstance(), "breakedblocks");
     private final Map<Block, BlockFace> interactedBlockFaces = new ConcurrentHashMap<>();
+    private final Map<UUID, LocalDateTime> cooldowns = new HashMap<>();
 
     List<Material> drillableMaterials = new ArrayList<>();
+    List<String> drillableCraftEngineIds = new ArrayList<>();
 
 
     public GauntletListener(Plugin plugin) {
         FileConfiguration config = NeomUtilities.getInstance().getConfig();
-        config.getStringList("gauntlet.drillable-blocks").forEach(material -> drillableMaterials.add(Material.getMaterial(material)));
+        for (String s : config.getStringList("gauntlet.drillable-blocks")) {
+            if (s.startsWith("minecraft:")) {
+                drillableMaterials.add(Material.matchMaterial(s));
+                continue;
+            }
+
+            drillableCraftEngineIds.add(s);
+        }
 
         getManaRegenTask().runTaskTimer(plugin, 0, config.getInt("gauntlet.mana-recharge-period", 20));
     }
@@ -123,8 +132,10 @@ public class GauntletListener implements Listener {
         damageable.setDamage(maxMana - mana);
         item.setItemMeta(itemMeta);
 
-        List<Block> blocks = this.getBlocks(block.getLocation(), blockFace, value -> drillableMaterials.contains(value.getType()), radius);
+        cooldowns.put(player.getUniqueId(), LocalDateTime.now());
 
+        List<Block> blocks = this.getBlocks(block.getLocation(), blockFace, value -> drillableMaterials.contains(value.getType()) ||
+                (CraftEngineBlocks.isCustomBlock(value) && drillableCraftEngineIds.contains(CraftEngineBlocks.getCustomBlockState(value).owner().value().id().toString())), radius);
         blocks.remove(block);
         if (blocks.isEmpty()) {
             return;
@@ -150,7 +161,7 @@ public class GauntletListener implements Listener {
     @EventHandler
     public void onPlayerPickupItem(PlayerPickupItemEvent event){
         Player player = event.getPlayer();
-        if (hasPlayerGauntlet(player)) {
+        if (hasPlayerGauntlet(player) && CraftEngineItems.isCustomItem(event.getItem().getItemStack()) && CraftEngineItems.getCustomItemId(event.getItem().getItemStack()).toString().equals(itemID)) {
             event.setCancelled(true);
             return;
         };
@@ -203,54 +214,54 @@ public class GauntletListener implements Listener {
         return blocks;
     }
 
-    public BukkitRunnable getManaRegenTask(){
-        return new BukkitRunnable(){
+    public BukkitRunnable getManaRegenTask() {
+        return new BukkitRunnable() {
             @Override
             public void run() {
                 FileConfiguration config = NeomUtilities.getInstance().getConfig();
-                getItemsInPlayerInventory().forEach(item -> {
-                    ItemMeta itemMeta = item.getItemMeta();
-                    Damageable damageable = (Damageable) itemMeta;
-                    PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
-                    Integer maxMana = damageable.getMaxDamage();
-                    Integer mana = persistentDataContainer.get(MANA_KEY, PersistentDataType.INTEGER);
-                    Integer beaked_blocks = persistentDataContainer.get(BLOCK_BREAK_KEY, PersistentDataType.INTEGER);
-                    int remove_max_mana = config.getInt("gauntlet.default-mana-capacity-los", 10) + (int) Math.round(config.getDouble("gauntlet.mana-capacity-los-per-break") * beaked_blocks);
+                int cooldownSeconds = config.getInt("gauntlet.cooldown", 10);
 
-                    if (mana == null) {
-                        mana = maxMana;
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (cooldowns.containsKey(player.getUniqueId())) {
+                        if (!LocalDateTime.now().isAfter(cooldowns.get(player.getUniqueId()).plusSeconds(cooldownSeconds))) {
+                            continue;
+                        } else {
+                            cooldowns.remove(player.getUniqueId());
+                        }
                     }
 
-                    double percent = maxMana * (remove_max_mana / 100.0);
-                    int limit = maxMana - (int) Math.round(percent);
+                    ItemStack[] contents = player.getInventory().getContents();
+                    for (int i = 0; i < contents.length; i++) {
+                        ItemStack item = contents[i];
 
-                    if (mana >= limit) {
-                        return;
-                    }
+                        if (item == null || !item.hasItemMeta()) continue;
+                        ItemMeta meta = item.getItemMeta();
+                        if (!meta.getPersistentDataContainer().has(MANA_KEY, PersistentDataType.INTEGER)) continue;
 
-                    persistentDataContainer.set(MANA_KEY, PersistentDataType.INTEGER, mana += MANA_PER_PERIOD);
-                    damageable.setDamage(maxMana - mana);
+                        Damageable damageable = (Damageable) meta;
+                        PersistentDataContainer pdc = meta.getPersistentDataContainer();
 
-                    item.setItemMeta(itemMeta);
-                });
-            }
-        };
-    }
+                        int maxMana = damageable.getMaxDamage();
+                        int currentMana = pdc.getOrDefault(MANA_KEY, PersistentDataType.INTEGER, 0);
+                        int brokenBlocks = pdc.getOrDefault(BLOCK_BREAK_KEY, PersistentDataType.INTEGER, 0);
 
-    public List<ItemStack> getItemsInPlayerInventory() {
-        List<ItemStack> foundItems = new ArrayList<>();
+                        double lossPercent = config.getDouble("gauntlet.default-mana-capacity-los", 10)
+                                + (config.getDouble("gauntlet.mana-capacity-los-per-break") * brokenBlocks);
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            for (ItemStack item : player.getInventory().getContents()) {
-                if (item != null && item.hasItemMeta()) {
-                    ItemMeta meta = item.getItemMeta();
-                    if (meta.getPersistentDataContainer().has(MANA_KEY, PersistentDataType.INTEGER)) {
-                        foundItems.add(item);
+                        int limit = maxMana - (int) Math.round(maxMana * (lossPercent / 100.0));
+
+                        if (currentMana < limit) {
+                            int newMana = Math.min(limit, currentMana + MANA_PER_PERIOD);
+                            pdc.set(MANA_KEY, PersistentDataType.INTEGER, newMana);
+                            damageable.setDamage(maxMana - newMana);
+
+                            item.setItemMeta(meta);
+                            player.getInventory().setItem(i, item);
+                        }
                     }
                 }
             }
-        }
-        return foundItems;
+        };
     }
 
     public void dropGauntlet(Player player) {
