@@ -215,7 +215,7 @@ public class GauntletListener implements Listener {
                     Integer maxMana = damageable.getMaxDamage();
                     Integer mana = persistentDataContainer.get(MANA_KEY, PersistentDataType.INTEGER);
                     Integer beaked_blocks = persistentDataContainer.get(BLOCK_BREAK_KEY, PersistentDataType.INTEGER);
-                    int remove_max_mana = config.getInt("gauntlet.drfault-mana-capacity-los", 10) + (int) Math.round(config.getDouble("gauntlet.mana-capacity-los-per-break") * beaked_blocks);
+                    int remove_max_mana = config.getInt("gauntlet.default-mana-capacity-los", 10) + (int) Math.round(config.getDouble("gauntlet.mana-capacity-los-per-break") * beaked_blocks);
 
                     if (mana == null) {
                         mana = maxMana;
