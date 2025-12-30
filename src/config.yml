@@ -14,6 +14,11 @@ duralki:
 
 gauntlet:
   item-id: "neom:gauntlet"
+  mana-recharge-period: 20
+  mana-per-period: 1
+  mana-consume: 5
+  drfault-mana-capacity-los: 10
+  mana-capacity-los-per-break: 0.1
   drillable-blocks:
     - STONE
     - COBBLESTONE
