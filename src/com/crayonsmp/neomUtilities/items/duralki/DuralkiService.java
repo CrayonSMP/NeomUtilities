@@ -1,9 +1,11 @@
-package com.crayonsmp.neomUtilities.duralki;
+package com.crayonsmp.neomUtilities.items.duralki;
 
 import com.crayonsmp.neomUtilities.NeomUtilities;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -11,10 +13,9 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DuralkiService {
-    private static String itemID = NeomUtilities.getInstance().getConfig().getString("duralki.item-id", "neom:duralki");
+    private static final String itemID = NeomUtilities.getInstance().getConfig().getString("duralki.item-id", "neom:duralki");
 
     public static boolean isDuralki(ItemStack itemStack) {
         if (!CraftEngineItems.isCustomItem(itemStack)) return false;
@@ -23,6 +24,7 @@ public class DuralkiService {
 
     public static void transferDurability(Player player, ItemStack duralki, ItemStack tool) {
         if (duralki == null || tool == null) return;
+
         if (isToolBlacklisted(tool)) return;
 
         ItemMeta toolMeta = tool.getItemMeta();
@@ -59,6 +61,39 @@ public class DuralkiService {
 
         tool.setItemMeta(toolMeta);
         player.playSound(player.getLocation(), config.getString("duralki.transfer-sound", String.valueOf(Sound.BLOCK_AMETHYST_BLOCK_CHIME)), 0.5f, 2.0f);
+    }
+
+    public static ItemStack getReplacement(ItemStack tool) {
+        String namespacedKey;
+
+        if (CraftEngineItems.isCustomItem(tool)) {
+            namespacedKey = CraftEngineItems.getCustomItemId(tool).toString();
+        } else {
+            namespacedKey = tool.getType().getKey().toString();
+        }
+
+        ConfigurationSection section = NeomUtilities.getInstance().getConfig()
+                .getConfigurationSection("duralki.replace-tools");
+
+        if (section == null || !section.contains(namespacedKey)) {
+            return null;
+        }
+
+        String replacementId = section.getString(namespacedKey);
+        return createItemStack(replacementId);
+    }
+
+    private static ItemStack createItemStack(String id) {
+        if (CraftEngineItems.byId(Key.from(id)) != null) {
+            return CraftEngineItems.byId(Key.from(id)).buildItemStack();
+        }
+
+        Material mat = Material.matchMaterial(id);
+        if (mat != null) {
+            return new ItemStack(mat);
+        }
+
+        return null;
     }
 
     private static boolean isToolBlacklisted(ItemStack itemStack) {

@@ -1,9 +1,8 @@
-package com.crayonsmp.neomUtilities.gauntlet;
+package com.crayonsmp.neomUtilities.items.gauntlet;
 
 import com.crayonsmp.neomUtilities.NeomUtilities;
 import net.momirealms.craftengine.bukkit.api.CraftEngineBlocks;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
-import net.momirealms.craftengine.core.plugin.CraftEngine;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -68,11 +67,12 @@ public class GauntletListener implements Listener {
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItem(EquipmentSlot.HAND);
 
+        assert item != null;
         if (!CraftEngineItems.isCustomItem(item)) {
             return;
         }
 
-        if (!CraftEngineItems.getCustomItemId(item).toString().equals(itemID)) {
+        if (!Objects.requireNonNull(CraftEngineItems.getCustomItemId(item)).toString().equals(itemID)) {
             return;
         }
 
@@ -103,12 +103,14 @@ public class GauntletListener implements Listener {
 
         ItemStack item = player.getInventory().getItem(EquipmentSlot.HAND);
 
-        if (!CraftEngineItems.isCustomItem(item) || !CraftEngineItems.getCustomItemId(item).toString().equals(itemID)) {
+        assert item != null;
+        if (!CraftEngineItems.isCustomItem(item) || !Objects.requireNonNull(CraftEngineItems.getCustomItemId(item)).toString().equals(itemID)) {
             return;
         }
 
         ItemMeta itemMeta = item.getItemMeta();
         Damageable damageable = (Damageable) itemMeta;
+        assert itemMeta != null;
         PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
         Integer maxMana = damageable.getMaxDamage();
         Integer mana = persistentDataContainer.get(MANA_KEY, PersistentDataType.INTEGER);
@@ -159,12 +161,18 @@ public class GauntletListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerPickupItem(PlayerPickupItemEvent event){
+    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         Player player = event.getPlayer();
-        if (hasPlayerGauntlet(player) && CraftEngineItems.isCustomItem(event.getItem().getItemStack()) && CraftEngineItems.getCustomItemId(event.getItem().getItemStack()).toString().equals(itemID)) {
-            event.setCancelled(true);
-            return;
-        };
+        ItemStack itemStack = event.getItem().getItemStack();
+
+        if (hasPlayerGauntlet(player) && CraftEngineItems.isCustomItem(itemStack)) {
+            var id = CraftEngineItems.getCustomItemId(itemStack);
+            if (id != null && id.toString().equals(itemID)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         Bukkit.getScheduler().runTaskLater(NeomUtilities.getInstance(), () -> dropGauntlet(player), 1);
     }
 
@@ -203,7 +211,7 @@ public class GauntletListener implements Listener {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    Block blockAt = loc.getWorld().getBlockAt(x, y, z);
+                    Block blockAt = Objects.requireNonNull(loc.getWorld()).getBlockAt(x, y, z);
                     if (predicate.test(blockAt)) {
                         blocks.add(blockAt);
                     }
@@ -236,6 +244,7 @@ public class GauntletListener implements Listener {
 
                         if (item == null || !item.hasItemMeta()) continue;
                         ItemMeta meta = item.getItemMeta();
+                        assert meta != null;
                         if (!meta.getPersistentDataContainer().has(MANA_KEY, PersistentDataType.INTEGER)) continue;
 
                         Damageable damageable = (Damageable) meta;
@@ -272,7 +281,7 @@ public class GauntletListener implements Listener {
             ItemStack item = contents[i];
 
             if (item == null || !CraftEngineItems.isCustomItem(item)) continue;
-            if (!CraftEngineItems.getCustomItemId(item).toString().equals(itemID)) continue;
+            if (!Objects.requireNonNull(CraftEngineItems.getCustomItemId(item)).toString().equals(itemID)) continue;
 
             if (!foundFirst) {
                 foundFirst = true;
@@ -286,8 +295,11 @@ public class GauntletListener implements Listener {
     public boolean hasPlayerGauntlet(Player player) {
         ItemStack[] contents = player.getInventory().getContents();
         for (ItemStack item : contents) {
-            if (item != null && CraftEngineItems.isCustomItem(item) && CraftEngineItems.getCustomItemId(item).toString().equals(itemID)) {
-                return true;
+            if (item != null && CraftEngineItems.isCustomItem(item)) {
+                var id = CraftEngineItems.getCustomItemId(item);
+                if (id != null && id.toString().equals(itemID)) {
+                    return true;
+                }
             }
         }
         return false;
