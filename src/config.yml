@@ -46,12 +46,15 @@ gauntlet:
 biomchanger:
   # First the CraftEngine Item ID second the biom id.
   items:
-    "custom:item": "minecraft:jungle"
-    "custom:item2": "minecraft:jungle"
-  # Radius of the biom change.
-  radius: 15
-  # Should the items be removed from the inventory?
-  removeItems: true
-  # List of players that can use the biom changer.
-  players:
-    - "bfd59ae0-c905-4f3b-903a-3ce8510d6b71"
+    "custom:item":
+      biom: "minecraft:jungle"
+      radius: 15
+      removeItems: true
+      players:
+        - "bfd59ae0-c905-4f3b-903a-3ce8510d6b71"
+    "custom:item2":
+      biom: "minecraft:jungle"
+      radius: 15
+      removeItems: true
+      players:
+        - "bfd59ae0-c905-4f3b-903a-3ce8510d6b71"

@@ -19,67 +19,63 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
 public class BiomChangerService {
-    private static final HashMap<String, String> itemToBiomeMap = new HashMap<>();
-    private static int currentRadius = 10;
-    private static List<String> allowedPlayers = new ArrayList<>();
-    private static boolean removeItems = true;
+    private static final HashMap<String, BiomChangerSettings> itemSettingsMap = new HashMap<>();
 
     public void loadConfig() {
-        itemToBiomeMap.clear();
+        itemSettingsMap.clear();
 
         NeomUtilities.getInstance().reloadConfig();
         var config = NeomUtilities.getInstance().getConfig();
 
-        currentRadius = config.getInt("biomchanger.radius", 10);
-        allowedPlayers = config.getStringList("biomchanger.players");
-        removeItems = config.getBoolean("biomchanger.remove-items", true);
+        ConfigurationSection itemsSection = config.getConfigurationSection("biomchanger.items");
 
-        ConfigurationSection section = config.getConfigurationSection("biomchanger.items");
+        if (itemsSection != null) {
+            for (String itemKey : itemsSection.getKeys(false)) {
+                ConfigurationSection itemData = itemsSection.getConfigurationSection(itemKey);
+                if (itemData != null) {
+                    String biome = itemData.getString("biom");
+                    int radius = itemData.getInt("radius", 10);
+                    boolean remove = itemData.getBoolean("removeItems", true);
+                    List<String> players = itemData.getStringList("players");
 
-        if (section != null) {
-            for (String itemKey : section.getKeys(false)) {
-                String biomeValue = section.getString(itemKey);
-                if (biomeValue != null) {
-                    itemToBiomeMap.put(itemKey, biomeValue);
+                    itemSettingsMap.put(itemKey, new BiomChangerSettings(biome, radius, remove, players));
                 }
             }
         }
     }
 
     public static boolean isBiomChangerItem(ItemStack itemStack) {
-        if (!CraftEngineItems.isCustomItem(itemStack)) return itemToBiomeMap.containsKey(itemStack.getType().getKeyOrThrow().toString());
-        return itemToBiomeMap.containsKey(Objects.requireNonNull(CraftEngineItems.getCustomItemId(itemStack)).toString());
+        String id = getCustomId(itemStack);
+        return id != null && itemSettingsMap.containsKey(id);
     }
 
-    public static boolean isAllowedPlayer(Player player) {
-        return allowedPlayers.contains(player.getUniqueId().toString());
+    private static String getCustomId(ItemStack itemStack) {
+        if (itemStack == null || !CraftEngineItems.isCustomItem(itemStack)) return null;
+        Object id = CraftEngineItems.getCustomItemId(itemStack);
+        return id != null ? id.toString() : null;
     }
 
     public static void trySetCustomBiome(Player player, ItemStack itemStack) {
-        if (itemStack == null || itemStack.getType() == Material.AIR) return;
+        String customId = getCustomId(itemStack);
+        if (customId == null || !itemSettingsMap.containsKey(customId)) return;
 
-        Object customIdObj = CraftEngineItems.getCustomItemId(itemStack);
-        if (customIdObj == null) return;
+        BiomChangerSettings settings = itemSettingsMap.get(customId);
 
-        String customId = customIdObj.toString();
-        if (!isBiomChangerItem(itemStack)) return;
-        if (!isAllowedPlayer(player)) return;
-
-        String biomeId = itemToBiomeMap.get(customId);
-        if (biomeId == null) return;
+        if (!settings.allowedPlayers.contains(player.getUniqueId().toString())) {
+            return;
+        }
 
         Location loc = player.getLocation();
         World world = player.getWorld();
 
-        world.spawnParticle(Particle.WHITE_ASH, loc, 1000, 20, 20, 20, 1);
+        world.spawnParticle(Particle.WHITE_ASH, loc, 5000, 2, 2, 2, 0.1);
         world.playSound(loc, Sound.ENTITY_ENDER_EYE_DEATH, 2.0f, 0.0f);
 
         BlockVector3 center = BukkitAdapter.asBlockVector(loc);
 
-        // Biom setzen
-        setCustomBiome(world, center, currentRadius, biomeId);
+        setCustomBiome(world, center, settings.radius, settings.biomeId);
 
-        if (removeItems) {
+        if (settings.removeItems) {
             itemStack.setAmount(itemStack.getAmount() - 1);
         }
     }
@@ -96,26 +92,20 @@ public class BiomChangerService {
                 BiomeReplace replace = new BiomeReplace(editSession, customBiome);
                 RegionVisitor visitor = new RegionVisitor(region, replace);
                 Operations.complete(visitor);
-
                 editSession.flushSession();
 
-                int blockX = center.x();
-                int blockZ = center.z();
-
                 int chunkRadius = (radius >> 4) + 1;
-                int centerChunkX = blockX >> 4;
-                int centerChunkZ = blockZ >> 4;
+                int centerChunkX = center.x() >> 4;
+                int centerChunkZ = center.z() >> 4;
 
                 for (int x = centerChunkX - chunkRadius; x <= centerChunkX + chunkRadius; x++) {
                     for (int z = centerChunkZ - chunkRadius; z <= centerChunkZ + chunkRadius; z++) {
                         bukkitWorld.refreshChunk(x, z);
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
 }
