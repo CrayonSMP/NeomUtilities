@@ -20,18 +20,16 @@ public class HatchService {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (tickingBlocks.isEmpty()) return; // Nur loggen, wenn auch was zu tun ist
+                if (tickingBlocks.isEmpty()) return;
 
                 Iterator<Map.Entry<Location, Long>> it = tickingBlocks.entrySet().iterator();
-                int count = 0;
                 while (it.hasNext()) {
                     Map.Entry<Location, Long> entry = it.next();
                     Location loc = entry.getKey();
-                    count++;
 
                     if (loc.getWorld() == null || !loc.getWorld().isChunkLoaded(loc.getBlockX() >> 4, loc.getBlockZ() >> 4)) continue;
 
-                    long newTicks = entry.getValue() + 20;
+                    long newTicks = entry.getValue() + 10;
                     entry.setValue(newTicks);
 
                     HatchData data = new HatchData(loc, blockTypes.get(loc), newTicks);
@@ -42,7 +40,7 @@ public class HatchService {
                     }
                 }
             }
-        }.runTaskTimer(NeomUtilities.getInstance(), 20L, 20L);
+        }.runTaskTimer(NeomUtilities.getInstance(), 10L, 10L);
     }
 
     public static boolean checkGrowth(HatchData data) {
@@ -61,7 +59,7 @@ public class HatchService {
             if (stageSection == null) continue;
 
             long target = stageSection.getLong("time");
-            if (data.ticks >= target && data.ticks < target + 20) {
+            if (data.ticks >= target && data.ticks < target + 10) {
 
                 ActionContext context = new ActionContext();
                 context.setLocation(data.location);

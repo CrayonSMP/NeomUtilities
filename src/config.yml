@@ -108,6 +108,7 @@ hatchableblocks:
             value:
               type: mythicmob
               entity: ExampleMob
+              random_rotation: true
           - type: particle
             value:
               id: 'minecraft:block{block_state:"craftengine:custom_0"}'
