@@ -68,7 +68,7 @@ public class BiomChangerService {
         Location loc = player.getLocation();
         World world = player.getWorld();
 
-        world.spawnParticle(Particle.WHITE_ASH, loc, 5000, 2, 2, 2, 0.1);
+        world.spawnParticle(Particle.WHITE_ASH, loc, 5000, 4, 4, 4, 0.1);
         world.playSound(loc, Sound.ENTITY_ENDER_EYE_DEATH, 2.0f, 0.0f);
 
         BlockVector3 center = BukkitAdapter.asBlockVector(loc);

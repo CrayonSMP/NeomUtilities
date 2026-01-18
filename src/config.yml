@@ -58,3 +58,62 @@ biomchanger:
       removeItems: true
       players:
         - "bfd59ae0-c905-4f3b-903a-3ce8510d6b71"
+
+#
+# All actions: change_block, remove_block, spawn, particle, sound
+# All change_block types: block, customblock, furniture
+# All spawn types: vanilla, mythicmob
+#
+
+hatchableblocks:
+  "neom:carved_acacia_planks":
+    stagesize: 3
+    points:
+      '1':
+        time: 30
+        actions:
+          - type: change_block
+            value:
+              type: customblock
+              id: neom:carved_dark_oak_planks
+          - type: sound
+            value:
+              key: minecraft:block.amethyst_block.break
+              volume: 1
+              pitch: 1
+      '2':
+        time: 60
+        actions:
+          - type: change_block
+            value:
+              type: block
+              id: minecraft:diamond_block
+          - type: sound
+            value:
+              key: minecraft:block.amethyst_block.break
+              volume: 1
+              pitch: 1
+      '3':
+        time: 90
+        actions:
+          - type: remove_block
+            value:
+              type: customblock
+          - type: sound
+            value:
+              key: minecraft:block.amethyst_block.break
+              volume: 1
+              pitch: 1
+          - type: spawn
+            value:
+              type: mythicmob
+              entity: ExampleMob
+          - type: particle
+            value:
+              id: 'minecraft:block{block_state:"craftengine:custom_0"}'
+              count: 100
+              offset-x: 0.3
+              offset-y: 0.3
+              offset-z: 0.3
+              speed: 0.02
+              centered: true
