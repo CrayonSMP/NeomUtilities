@@ -10,8 +10,8 @@ import org.bukkit.entity.Entity;
 
 public class RemoveBlockAction extends Action {
 
-    public RemoveBlockAction() {
-        id = "remove_block";
+    public RemoveBlockAction(String id) {
+        super(id);
     }
 
     @Override

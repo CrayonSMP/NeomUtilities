@@ -1,8 +1,10 @@
 package com.crayonsmp.neomUtilities.utils;
 
+import com.crayonsmp.neomUtilities.NeomUtilities;
 import com.crayonsmp.neomUtilities.actions.*;
 import com.crayonsmp.neomUtilities.model.Action;
 import com.crayonsmp.neomUtilities.model.ActionContext;
+import com.crayonsmp.neomUtilities.model.ConditionContext;
 import org.bukkit.configuration.ConfigurationSection;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -15,17 +17,18 @@ import java.util.Map;
 public class ActionService {
 
     private final Map<String, Action> registeredActions = new HashMap<>();
+    private final ContextService contextService = NeomUtilities.getContextService();
 
     public ActionService() {
-        registerAction(new ChangeBlockAction());
-        registerAction(new SoundAction());
-        registerAction(new RemoveBlockAction());
-        registerAction(new SpawnMobAction());
-        registerAction(new SpawnParticleAction());
+        registerAction(new ChangeBlockAction("change_block"));
+        registerAction(new SoundAction("sound"));
+        registerAction(new RemoveBlockAction("remove_block"));
+        registerAction(new SpawnMobAction("spawn"));
+        registerAction(new SpawnParticleAction("particle"));
     }
 
     public void registerAction(Action action) {
-        registeredActions.put(action.id.toLowerCase(), action);
+        registeredActions.put(action.getId().toLowerCase(), action);
     }
 
     public void executeAllActions(ConfigurationSection config, ActionContext context) {
@@ -41,6 +44,22 @@ public class ActionService {
 
             Action action = registeredActions.get(type.toLowerCase());
             if (action == null) continue;
+
+            if (actionMap.containsKey("conditions")) {
+                MemoryConfiguration actionSection = new MemoryConfiguration();
+                actionMap.forEach((k, v) -> actionSection.set(k.toString(), v));
+
+                ConditionContext conditionContext = new ConditionContext();
+                conditionContext.setLocation(context.getLocation());
+                conditionContext.setWorld(context.getWorld());
+                conditionContext.setBlock(context.getBlock());
+                conditionContext.setEntity(context.getEntity());
+                conditionContext.setPlayer(context.getPlayer());
+
+                if (!contextService.checkAllConditions(actionSection, conditionContext)) {
+                    continue;
+                }
+            }
 
             Object valueData = actionMap.get("value");
 

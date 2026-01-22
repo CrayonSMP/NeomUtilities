@@ -13,8 +13,8 @@ import org.bukkit.entity.Entity;
 
 public class ChangeBlockAction extends Action {
 
-    public ChangeBlockAction() {
-        id = "change_block";
+    public ChangeBlockAction(String id) {
+        super(id);
     }
 
     @Override

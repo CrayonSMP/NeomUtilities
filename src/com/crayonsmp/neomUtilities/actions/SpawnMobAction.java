@@ -15,8 +15,8 @@ import java.util.Optional;
 
 public class SpawnMobAction extends Action {
 
-    public SpawnMobAction() {
-        id = "spawn";
+    public SpawnMobAction(String id) {
+        super(id);
     }
 
     @Override

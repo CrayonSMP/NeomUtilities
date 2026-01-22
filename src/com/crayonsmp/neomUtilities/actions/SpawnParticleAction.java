@@ -9,8 +9,8 @@ import org.bukkit.inventory.ItemStack;
 
 public class SpawnParticleAction extends Action {
 
-    public SpawnParticleAction() {
-        id = "particle";
+    public SpawnParticleAction(String id) {
+        super(id);
     }
 
     @Override

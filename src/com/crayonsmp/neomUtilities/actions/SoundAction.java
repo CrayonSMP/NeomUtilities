@@ -7,8 +7,8 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class SoundAction extends Action {
 
-    public SoundAction() {
-        id = "sound";
+    public SoundAction(String id) {
+        super(id);
     }
 
     @Override
