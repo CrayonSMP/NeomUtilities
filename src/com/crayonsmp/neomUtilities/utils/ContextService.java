@@ -1,6 +1,7 @@
 package com.crayonsmp.neomUtilities.utils;
 
 import com.crayonsmp.neomUtilities.conditions.hasPermissionCondition;
+import com.crayonsmp.neomUtilities.conditions.isBlockCondition;
 import com.crayonsmp.neomUtilities.model.Condition;
 import com.crayonsmp.neomUtilities.model.ConditionContext;
 import org.bukkit.configuration.ConfigurationSection;
@@ -15,6 +16,7 @@ public class ContextService {
 
     public ContextService() {
         registerCondition(new hasPermissionCondition("has-permission"));
+        registerCondition(new isBlockCondition("is-block"));
     }
 
     public void registerCondition(Condition condition) {
