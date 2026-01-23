@@ -23,8 +23,13 @@ public class isBlockCondition extends Condition {
         String ys = config.getString("y");
         String zs = config.getString("z");
 
-        if (type == null || id == null || xs == null || ys == null || zs == null || context.getLocation() == null) {
+        if (type == null || id == null || xs == null || ys == null || zs == null) {
+            NeomUtilities.getInstance().getLogger().warning("[Debug] Condition 'is-block' failed: Missing parameters in config or context location is null!");
             return false;
+        }
+
+        if (context.getLocation() == null){
+            NeomUtilities.getInstance().getLogger().warning("[Debug] context location is null!");
         }
 
         Location baseLoc = context.getLocation();
@@ -35,20 +40,27 @@ public class isBlockCondition extends Condition {
         Location checkLoc = new Location(baseLoc.getWorld(), finalX, finalY, finalZ);
 
         if (type.equalsIgnoreCase("customblock")) {
-            if (CraftEngineBlocks.byId(Key.from(id)) == null){
-                NeomUtilities.getInstance().getLogger().warning("Tried to change block, but custom block was invalid!");
+            if (CraftEngineBlocks.byId(Key.from(id)) == null) {
                 return false;
             }
 
-            return CraftEngineBlocks.getCustomBlockState(checkLoc.getBlock()).owner().value().id().equals(id);
+            if (!CraftEngineBlocks.isCustomBlock(checkLoc.getBlock())) {
+                return false;
+            }
+
+            String blockId = CraftEngineBlocks.getCustomBlockState(checkLoc.getBlock()).owner().value().id().toString();
+
+            return blockId.equalsIgnoreCase(id);
         }
 
-        if (type.equalsIgnoreCase("vanilla")) {
+        if (type.equalsIgnoreCase("vanilla") || type.equalsIgnoreCase("block")) {
             Material targetMaterial = Material.matchMaterial(id);
-            if (targetMaterial == null) return false;
+            if (targetMaterial == null) {
+                return false;
+            }
 
-
-            return checkLoc.getBlock().getType() == targetMaterial;
+            Material actualMaterial = checkLoc.getBlock().getType();
+            return (actualMaterial == targetMaterial);
         }
 
         return false;

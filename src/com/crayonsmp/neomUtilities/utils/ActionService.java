@@ -5,10 +5,13 @@ import com.crayonsmp.neomUtilities.actions.*;
 import com.crayonsmp.neomUtilities.model.Action;
 import com.crayonsmp.neomUtilities.model.ActionContext;
 import com.crayonsmp.neomUtilities.model.ConditionContext;
+import com.crayonsmp.neomUtilities.model.VariableContext;
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,9 +20,12 @@ import java.util.Map;
 public class ActionService {
 
     private final Map<String, Action> registeredActions = new HashMap<>();
-    private final ContextService contextService = NeomUtilities.getContextService();
+    private final ConditionService conditionService;
+    private final VariableService variableService;
 
-    public ActionService() {
+    public ActionService(ConditionService conditionService, VariableService variableService) {
+        this.conditionService = conditionService;
+        this.variableService = variableService;
         registerAction(new ChangeBlockAction("change_block"));
         registerAction(new SoundAction("sound"));
         registerAction(new RemoveBlockAction("remove_block"));
@@ -37,7 +43,9 @@ public class ActionService {
         List<?> actionList = config.getList("actions");
 
         for (Object entry : actionList) {
-            if (!(entry instanceof Map<?, ?> actionMap)) continue;
+            if (!(entry instanceof Map<?, ?> rawMap)) continue;
+
+            Map<String, Object> actionMap = (Map<String, Object>) replacePlaceholders(rawMap, context.getPlayer(), context);
 
             String type = (String) actionMap.get("type");
             if (type == null) continue;
@@ -72,7 +80,7 @@ public class ActionService {
                 conditionContext.setEntity(context.getEntity());
                 conditionContext.setPlayer(context.getPlayer());
 
-                if (!contextService.checkAllConditions(actionSection, conditionContext)) {
+                if (!conditionService.checkAllConditions(actionSection, conditionContext)) {
                     continue;
                 }
             }
@@ -89,5 +97,60 @@ public class ActionService {
                 action.execute(context, tempConfig);
             }
         }
+    }
+
+    private Object replacePlaceholders(Object source, Player player, ActionContext context) {
+        if (source instanceof String str) {
+            String replaced = resolveCustomVariables(str, player, context);
+
+            if (player != null && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                replaced = PlaceholderAPI.setPlaceholders(player, replaced);
+            }
+            return replaced;
+        }
+
+        if (source instanceof Map<?, ?> map) {
+            Map<String, Object> newMap = new HashMap<>();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                newMap.put(entry.getKey().toString(), replacePlaceholders(entry.getValue(), player, context));
+            }
+            return newMap;
+        }
+
+        if (source instanceof List<?> list) {
+            return list.stream().map(item -> replacePlaceholders(item, player, context)).toList();
+        }
+
+        return source;
+    }
+
+    private String resolveCustomVariables(String text, Player player, ActionContext actionContext) {
+        if (!text.contains("$")) return text;
+
+        VariableContext varContext = new VariableContext();
+        varContext.setPlayer(player);
+        varContext.setWorld(actionContext.getWorld());
+        varContext.setLocation(actionContext.getLocation());
+        varContext.setBlock(actionContext.getBlock());
+        varContext.setEntity(actionContext.getEntity());
+
+        StringBuilder sb = new StringBuilder(text);
+        int currentIndex = 0;
+
+        while ((currentIndex = sb.indexOf("$", currentIndex)) != -1) {
+            int end = sb.indexOf("$", currentIndex + 1);
+            if (end == -1) break;
+
+            String varName = sb.substring(currentIndex + 1, end);
+            String value = variableService.getVariableValue(varName, varContext);
+
+            if (value != null) {
+                sb.replace(currentIndex, end + 1, value);
+                currentIndex += value.length();
+            } else {
+                currentIndex = end + 1;
+            }
+        }
+        return sb.toString();
     }
 }

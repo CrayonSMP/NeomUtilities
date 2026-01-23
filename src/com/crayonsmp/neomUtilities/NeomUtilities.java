@@ -3,28 +3,28 @@ package com.crayonsmp.neomUtilities;
 import com.crayonsmp.neomUtilities.items.biomchanger.BiomChangerListener;
 import com.crayonsmp.neomUtilities.items.biomchanger.BiomChangerService;
 import com.crayonsmp.neomUtilities.items.duralki.DuralkiListener;
-import com.crayonsmp.neomUtilities.items.duralki.DuralkiService;
 import com.crayonsmp.neomUtilities.items.gauntlet.GauntletListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchService;
 import com.crayonsmp.neomUtilities.utils.ActionService;
-import com.crayonsmp.neomUtilities.utils.ContextService;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.World;
+import com.crayonsmp.neomUtilities.utils.ConditionService;
+import com.crayonsmp.neomUtilities.utils.VariableService;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NeomUtilities extends JavaPlugin {
     private static JavaPlugin instance;
     private static ActionService actionService;
-    private static ContextService contextService;
+    private static ConditionService contextService;
+    private static VariableService variableService;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
-        actionService = new ActionService();
-        contextService = new ContextService();
+        variableService = new VariableService();
+        variableService.loadVariables(getConfig());
+        contextService = new ConditionService(variableService);
+        actionService = new ActionService(contextService, variableService);
         BiomChangerService biomChangerService = new BiomChangerService();
         biomChangerService.loadConfig();
 
@@ -46,7 +46,9 @@ public final class NeomUtilities extends JavaPlugin {
         return actionService;
     }
 
-    public static ContextService getContextService() {}
+    public static ConditionService getContextService() {
+        return contextService;
+    }
 
     public static JavaPlugin getInstance() {
         return instance;

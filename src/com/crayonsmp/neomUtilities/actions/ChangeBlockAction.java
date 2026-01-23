@@ -61,7 +61,7 @@ public class ChangeBlockAction extends Action {
 
         if (type.equalsIgnoreCase("customblock")){
             if (CraftEngineBlocks.byId(Key.from(id)) == null){
-                NeomUtilities.getInstance().getLogger().warning("Tried to change block, but custom block was invalid!");
+                NeomUtilities.getInstance().getLogger().warning("Tried to change block, but custom block ’" + id + "’  was invalid!");
                 return;
             }
 
@@ -71,7 +71,7 @@ public class ChangeBlockAction extends Action {
 
         if (type.equalsIgnoreCase("vanilla")){
             if (Material.matchMaterial(id) == null){
-                NeomUtilities.getInstance().getLogger().warning("Tried to change block, but block was invalid!");
+                NeomUtilities.getInstance().getLogger().warning("Tried to change block, but block ’" + id + "’ was invalid!");
 
                 return;
             }

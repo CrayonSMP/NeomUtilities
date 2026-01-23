@@ -85,9 +85,18 @@ hatchableblocks:
         time: 60
         actions:
           - type: change_block
+            conditions:
+              - type: "is-block"
+                inverted: false
+                terms:
+                  type: customblock
+                  id: "neom:carved_bamboo_planks"
+                  x: ~
+                  y: ~-1
+                  z: ~
             value:
-              type: block
-              id: minecraft:diamond_block
+              type: vanilla
+              id: $rarity$
           - type: sound
             value:
               key: minecraft:block.amethyst_block.break
@@ -118,3 +127,18 @@ hatchableblocks:
               offset-z: 0.3
               speed: 0.02
               centered: true
+
+variables:
+  # Der Name der Variable (wird über $rarity$ aufgerufen)
+  rarity:
+    type: "string"
+    options:
+      # Die Keys (COMMON, RARE, EPIC) sind die Werte, die zurückgegeben werden
+      "minecraft:stone":
+        probability: 0.7
+      "minecraft:diamond_block":
+        probability: 0.15
+      "minecraft:tuff":
+        probability: 0.05
+      "minecraft:iron_block":
+        probability: 0.1

@@ -6,3 +6,4 @@ authors: [ TamashiiMon ]
 website: https://crayonsmp.com/
 depend:
   - CraftEngine
+softdepend: [PlaceholderAPI]

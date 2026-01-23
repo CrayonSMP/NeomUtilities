@@ -1,6 +1,7 @@
 package com.crayonsmp.neomUtilities.items.hatchableblock;
 
 import com.crayonsmp.neomUtilities.NeomUtilities;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.momirealms.craftengine.bukkit.api.event.CustomBlockPlaceEvent;
 import net.momirealms.craftengine.bukkit.api.event.FurniturePlaceEvent;
 import org.bukkit.Location;
@@ -32,7 +33,6 @@ public class HatchListener implements Listener {
 
             HatchService.blockTypes.put(data.location, data.type);
             HatchService.tickingBlocks.put(data.location, data.ticks);
-            NeomUtilities.getInstance().getLogger().info("[HatchDebug] Block " + data.type + " bei " + data.location.toVector() + " in RAM geladen.");
         }
     }
 
@@ -66,8 +66,6 @@ public class HatchListener implements Listener {
         if (NeomUtilities.getInstance().getConfig().contains("hatchableblocks." + id)) {
             HatchService.blockTypes.put(loc, id);
             HatchService.tickingBlocks.put(loc, 0L);
-        } else {
-            NeomUtilities.getInstance().getLogger().warning("[HatchDebug] Registrierung fehlgeschlagen: " + id + " nicht in Config!");
         }
     }
 }
