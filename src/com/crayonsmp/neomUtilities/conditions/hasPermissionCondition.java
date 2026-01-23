@@ -6,8 +6,8 @@ import com.crayonsmp.neomUtilities.model.ConditionContext;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-public class hasPermission extends Condition {
-    public hasPermission(String id) {
+public class hasPermissionCondition extends Condition {
+    public hasPermissionCondition(String id) {
         super(id);
     }
 

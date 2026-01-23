@@ -45,6 +45,22 @@ public class ActionService {
             Action action = registeredActions.get(type.toLowerCase());
             if (action == null) continue;
 
+            if (actionMap.containsKey("probability")) {
+                Object probObj = actionMap.get("probability");
+
+                if (probObj instanceof Number number) {
+                    double probability = number.doubleValue();
+
+                    if (probability > 1.0) {
+                        probability = 1.0;
+                    }
+
+                    if (Math.random() > probability) {
+                        continue;
+                    }
+                }
+            }
+
             if (actionMap.containsKey("conditions")) {
                 MemoryConfiguration actionSection = new MemoryConfiguration();
                 actionMap.forEach((k, v) -> actionSection.set(k.toString(), v));

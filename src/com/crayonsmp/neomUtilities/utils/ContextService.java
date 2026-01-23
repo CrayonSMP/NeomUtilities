@@ -1,9 +1,6 @@
 package com.crayonsmp.neomUtilities.utils;
 
-import com.crayonsmp.neomUtilities.actions.*;
-import com.crayonsmp.neomUtilities.conditions.hasPermission;
-import com.crayonsmp.neomUtilities.model.Action;
-import com.crayonsmp.neomUtilities.model.ActionContext;
+import com.crayonsmp.neomUtilities.conditions.hasPermissionCondition;
 import com.crayonsmp.neomUtilities.model.Condition;
 import com.crayonsmp.neomUtilities.model.ConditionContext;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,7 +14,7 @@ public class ContextService {
     private final Map<String, Condition> registeredConditions = new HashMap<>();
 
     public ContextService() {
-        registerCondition(new hasPermission("has-permission"));
+        registerCondition(new hasPermissionCondition("has-permission"));
     }
 
     public void registerCondition(Condition condition) {
@@ -42,6 +39,7 @@ public class ContextService {
             if (condition == null) continue;
             
             boolean inverted = (Boolean) conditionMap.get("inverted");
+            condition.setInverted(inverted);
 
             Object valueData = conditionMap.get("terms");
 

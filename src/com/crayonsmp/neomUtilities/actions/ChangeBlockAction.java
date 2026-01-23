@@ -69,7 +69,7 @@ public class ChangeBlockAction extends Action {
             return;
         }
 
-        if (type.equalsIgnoreCase("block")){
+        if (type.equalsIgnoreCase("vanilla")){
             if (Material.matchMaterial(id) == null){
                 NeomUtilities.getInstance().getLogger().warning("Tried to change block, but block was invalid!");
 
