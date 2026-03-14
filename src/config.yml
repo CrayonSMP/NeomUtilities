@@ -142,3 +142,11 @@ variables:
         probability: 0.05
       "minecraft:iron_block":
         probability: 0.1
+
+entity-model-mapping:
+  COPPER_GOLEM:
+    default: "copper_golem_fresh"
+    unaffected: "copper_golem_fresh"
+    exposed: "copper_golem_exposed"
+    weathered: "copper_golem_weathered"
+    oxidized: "copper_golem_oxidized"

@@ -8,6 +8,7 @@ import com.crayonsmp.neomUtilities.items.hatchableblock.HatchListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchService;
 import com.crayonsmp.neomUtilities.utils.ActionService;
 import com.crayonsmp.neomUtilities.utils.ConditionService;
+import com.crayonsmp.neomUtilities.utils.EntityListener;
 import com.crayonsmp.neomUtilities.utils.VariableService;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,6 +36,7 @@ public final class NeomUtilities extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GauntletListener(this), this);
         getServer().getPluginManager().registerEvents(new BiomChangerListener(), this);
         getServer().getPluginManager().registerEvents(new HatchListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityListener(), this);
     }
 
     @Override
