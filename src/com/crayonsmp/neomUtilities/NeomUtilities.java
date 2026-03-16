@@ -1,11 +1,11 @@
 package com.crayonsmp.neomUtilities;
 
-import com.crayonsmp.neomUtilities.items.biomchanger.BiomChangerListener;
 import com.crayonsmp.neomUtilities.items.biomchanger.BiomChangerService;
 import com.crayonsmp.neomUtilities.items.duralki.DuralkiListener;
 import com.crayonsmp.neomUtilities.items.gauntlet.GauntletListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchService;
+import com.crayonsmp.neomUtilities.items.trait_sequencer.SequencerService;
 import com.crayonsmp.neomUtilities.utils.ActionService;
 import com.crayonsmp.neomUtilities.utils.ConditionService;
 import com.crayonsmp.neomUtilities.utils.EntityListener;
@@ -17,6 +17,8 @@ public final class NeomUtilities extends JavaPlugin {
     private static ActionService actionService;
     private static ConditionService contextService;
     private static VariableService variableService;
+    private static BiomChangerService biomChangerService;
+    private static SequencerService sequencerService;
 
     @Override
     public void onEnable() {
@@ -26,15 +28,18 @@ public final class NeomUtilities extends JavaPlugin {
         variableService.loadVariables(getConfig());
         contextService = new ConditionService(variableService);
         actionService = new ActionService(contextService, variableService);
-        BiomChangerService biomChangerService = new BiomChangerService();
-        biomChangerService.loadConfig();
+
+        sequencerService = new SequencerService();
+        sequencerService.init(this);
+
+        biomChangerService = new BiomChangerService();
+        biomChangerService.init(this);
 
         HatchService.loadAllChunksFromPDC();
         HatchService.startTicking();
 
         getServer().getPluginManager().registerEvents(new DuralkiListener(), this);
         getServer().getPluginManager().registerEvents(new GauntletListener(this), this);
-        getServer().getPluginManager().registerEvents(new BiomChangerListener(), this);
         getServer().getPluginManager().registerEvents(new HatchListener(), this);
         getServer().getPluginManager().registerEvents(new EntityListener(), this);
     }
@@ -51,6 +56,8 @@ public final class NeomUtilities extends JavaPlugin {
     public static ConditionService getContextService() {
         return contextService;
     }
+
+    public static SequencerService getSequencerService() {return sequencerService;}
 
     public static JavaPlugin getInstance() {
         return instance;

@@ -15,11 +15,17 @@ import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 
 public class BiomChangerService {
     private static final HashMap<String, BiomChangerSettings> itemSettingsMap = new HashMap<>();
+
+    public void init(Plugin plugin) {
+        loadConfig();
+        plugin.getServer().getPluginManager().registerEvents(new BiomChangerListener(), plugin);
+    }
 
     public void loadConfig() {
         itemSettingsMap.clear();

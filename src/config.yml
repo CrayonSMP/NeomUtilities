@@ -150,3 +150,78 @@ entity-model-mapping:
     exposed: "copper_golem_exposed"
     weathered: "copper_golem_weathered"
     oxidized: "copper_golem_oxidized"
+
+trait-sequencer:
+  block-id: "neom:trait-sequencer"
+  faild-item: "neom:biomatrics"
+  inv-name: "Trait Sequencer"
+  tiers:
+    0:
+      Display: "Deactivated"
+      id: "minecraft:barrier"
+    1:
+      Display: "Tier 1"
+      id: "craftengine:xyz"
+    2:
+      Display: "Tier 2"
+      id: "craftengine:xyz"
+    3:
+      Display: "Tier 3"
+      id: "craftengine:xyz"
+  #Modifier settings.
+  #Unter der custom lore kommt automatisch die Tier.
+  modifiers:
+    Structural:
+      Display: "§6Structural Density"
+      lore: "§7Die physische Härte und Explosionsresistenz."
+    Morphological:
+      Display: "§6Morphological Phase"
+      lore: "§7Die Form, Textur oder kristalline Struktur der Oberfläche."
+    Climatic:
+      Display: "§6Climatic Affinity"
+      lore: "§7Das Klima oder das Biom, zu dem das Item gehört."
+    Organic:
+      Display: "§6Organic Vitality"
+      lore: "§7Die Menge an biometrischen Strukturen im Block."
+    Energy:
+      Display: "§6Energy Resonance"
+      lore: "§7Wie der Block mit Energie, Magie oder Licht interagiert."
+    Kinetic:
+      Display: "§6Kinetic Behavior"
+      lore: "§7Wie der Block auf Schwerkraft oder Reibung reagiert."
+    Botanical:
+      Display: "§6Botanical Propagation"
+      lore: "§7Bestimmt, ob das neue item Potenzial für zum beispiel Früchte hat."
+  # All Sequnecer Recipies
+  # Modifier Types: Structural, Morphological, Climatic, Organic, Energy, Kinetic, Botanical
+  recipes:
+    - id: "reinforced_obsidian" # Interne ID zur Identifizierung
+      input:
+        material: "minecraft:OBSIDIAN"
+        amount: 1
+      result:
+        material: "minecraft:CRYING_OBSIDIAN"
+        amount: 1
+        name: "<#7f00ff>Reinforced Obsidian" # Optionaler Custom Name
+      modifiers:
+        - type: "Structural"
+          tier: 3
+          input: "minecraft:NETHERITE_SCRAP"
+        - type: "Energy"
+          tier: 1
+          input: "minecraft:GLOWSTONE_DUST"
+
+    - id: "tropical_growth"
+      input:
+        material: "minecraft:OAK_SAPLING"
+        amount: 1
+      result:
+        material: "minecraft:JUNGLE_SAPLING"
+        amount: 1
+      modifiers:
+        - type: "Climatic"
+          tier: 2
+          input: "minecraft:SAND"
+        - type: "Botanical"
+          tier: 2
+          input: "minecraft:MELON_SLICE"
