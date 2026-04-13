@@ -1,5 +1,6 @@
 package com.crayonsmp.neomUtilities;
 
+import com.crayonsmp.neomUtilities.commands.ReloadCommand;
 import com.crayonsmp.neomUtilities.items.biomchanger.BiomChangerService;
 import com.crayonsmp.neomUtilities.items.duralki.DuralkiListener;
 import com.crayonsmp.neomUtilities.items.gauntlet.GauntletListener;
@@ -11,6 +12,8 @@ import com.crayonsmp.neomUtilities.utils.ConditionService;
 import com.crayonsmp.neomUtilities.utils.EntityListener;
 import com.crayonsmp.neomUtilities.utils.VariableService;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Objects;
 
 public final class NeomUtilities extends JavaPlugin {
     private static JavaPlugin instance;
@@ -38,6 +41,8 @@ public final class NeomUtilities extends JavaPlugin {
         HatchService.loadAllChunksFromPDC();
         HatchService.startTicking();
 
+        Objects.requireNonNull(getCommand("neomreload")).setExecutor(new ReloadCommand());
+
         getServer().getPluginManager().registerEvents(new DuralkiListener(), this);
         getServer().getPluginManager().registerEvents(new GauntletListener(this), this);
         getServer().getPluginManager().registerEvents(new HatchListener(), this);
@@ -47,6 +52,16 @@ public final class NeomUtilities extends JavaPlugin {
     @Override
     public void onDisable() {
         HatchService.saveAllChunksToPDC();
+    }
+
+    // In NeomUtilities.java ergänzen:
+
+    public static VariableService getVariableService() {
+        return variableService;
+    }
+
+    public static BiomChangerService getBiomChangerService() {
+        return biomChangerService;
     }
 
     public static ActionService getActionService() {

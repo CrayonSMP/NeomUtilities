@@ -154,6 +154,24 @@ entity-model-mapping:
 trait-sequencer:
   block-id: "neom:trait-sequencer"
   faild-item: "neom:biomatrics"
+  craft-activated-button: "minecraft:stone_button"
+  craft-deactivated-button: "minecraft:oak_button"
+
+  sounds:
+    button: "ENTITY_ITEM_PICKUP"
+    button-volume: 1
+    button-pitch: 1
+    fail: "ENTITY_GENERIC_EXPLODE"
+    fail-volume: 1
+    fail-pitch: 1
+    success: "BLOCK_ENCHANTMENT_TABLE_USE"
+    success-volume: 1
+    success-pitch: 1
+
+  massages:
+    crafting-success: "§aCrafting successful! Your item is ready."
+    crafting-failed: "§cCrafting failed. Better luck next time!"
+
   inv-name: "Trait Sequencer"
   tiers:
     0:

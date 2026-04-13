@@ -16,6 +16,15 @@ public class HatchService {
     public static final Map<Location, Long> tickingBlocks = new HashMap<>();
     public static final Map<Location, String> blockTypes = new HashMap<>();
 
+    public static void reload() {
+        saveAllChunksToPDC();
+
+        tickingBlocks.clear();
+        blockTypes.clear();
+
+        loadAllChunksFromPDC();
+    }
+
     public static void startTicking() {
         new BukkitRunnable() {
             @Override

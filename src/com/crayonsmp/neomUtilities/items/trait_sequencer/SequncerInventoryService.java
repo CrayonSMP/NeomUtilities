@@ -5,6 +5,8 @@ import com.crayonsmp.neomUtilities.enums.ModifierType;
 import com.crayonsmp.neomUtilities.model.Modifier;
 import com.crayonsmp.neomUtilities.model.TraitSequence;
 import com.crayonsmp.neomUtilities.utils.ChatUtil;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -23,7 +25,7 @@ public class SequncerInventoryService {
 
     public Inventory createSequencerGUI(Player player) {
         Inventory gui = Bukkit.createInventory(null, 54, ChatUtil.format(sequencerService.getInvName()));
-        gui.setItem(SequencerSlots.CRAFT_BUTTON, sequencerService.getCraftButton());
+        gui.setItem(SequencerSlots.CRAFT_BUTTON, sequencerService.getCraftButton(false));
 
         String[] types = {"Structural", "Morphological", "Climatic", "Organic", "Energy", "Kinetic", "Botanical"};
         for (int i = 0; i < types.length; i++) {
@@ -104,11 +106,12 @@ public class SequncerInventoryService {
             inputItem.setAmount(inputItem.getAmount() - craftAmount);
             inv.setItem(SequencerSlots.INPUT, inputItem.getAmount() > 0 ? inputItem : null);
 
-            player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1f);
+            player.playSound(player.getLocation(), sequencerService.SOUND_CRAFTING_SUCCESS, sequencerService.SOUND_CRAFTING_SUCCESS_VOLUME, sequencerService.SOUND_CRAFTING_SUCCESS_PITCH);
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatUtil.format(sequencerService.MASSAGE_CRAFTING_SUCCESS)));
             return true;
 
         } else {
-            player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.2f);
+            player.playSound(player.getLocation(), sequencerService.SOUND_CRAFTING_FAILURE, sequencerService.SOUND_CRAFTING_FAILURE_VOLUME, sequencerService.SOUND_CRAFTING_FAILURE_PITCH);
             player.spawnParticle(Particle.EXPLOSION, player.getLocation(), 1);
 
             inv.setItem(SequencerSlots.INPUT, null);
@@ -124,8 +127,7 @@ public class SequncerInventoryService {
             }
 
             player.closeInventory();
-
-            player.sendMessage("§cDie Sequenzierung ist instabil geworden und fehlgeschlagen!");
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatUtil.format(sequencerService.MASSAGE_CRAFTING_FAILURE)));
             return false;
         }
     }

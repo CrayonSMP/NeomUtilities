@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -151,29 +152,36 @@ public class GauntletListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater(NeomUtilities.getInstance(), () -> dropGauntlet(player), 1);
+        Bukkit.getScheduler().runTaskLater(NeomUtilities.getInstance(), () -> {
+            if (player.isOnline()) dropGauntlet(player);
+        }, 1);
     }
 
     @EventHandler
-    public void onPlayerInventoryClick(InventoryClickEvent event){
-        Player player = (Player) event.getWhoClicked();
-        Bukkit.getScheduler().runTaskLater(NeomUtilities.getInstance(), () -> dropGauntlet(player), 1);
+    public void onPlayerInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        Bukkit.getScheduler().runTaskLater(NeomUtilities.getInstance(), () -> {
+            if (player.isOnline()) dropGauntlet(player);
+        }, 1);
     }
 
     @EventHandler
-    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-        Player player = event.getPlayer();
+    public void onPlayerPickupItem(EntityPickupItemEvent event) { // Hinweis: PlayerPickupItemEvent ist veraltet
+        if (!(event.getEntity() instanceof Player player)) return;
+
         ItemStack itemStack = event.getItem().getItemStack();
 
         if (hasPlayerGauntlet(player) && CraftEngineItems.isCustomItem(itemStack)) {
-            var id = CraftEngineItems.getCustomItemId(itemStack);
+            String id = String.valueOf(CraftEngineItems.getCustomItemId(itemStack));
             if (id != null && id.toString().equals(itemID)) {
                 event.setCancelled(true);
                 return;
             }
         }
 
-        Bukkit.getScheduler().runTaskLater(NeomUtilities.getInstance(), () -> dropGauntlet(player), 1);
+        Bukkit.getScheduler().runTaskLater(NeomUtilities.getInstance(), () -> {
+            if (player.isOnline()) dropGauntlet(player);
+        }, 1);
     }
 
 
@@ -274,20 +282,30 @@ public class GauntletListener implements Listener {
     }
 
     public void dropGauntlet(Player player) {
+        // Sicherheitscheck: Ist der Spieler noch online?
+        if (player == null || !player.isOnline()) return;
+
         ItemStack[] contents = player.getInventory().getContents();
         boolean foundFirst = false;
 
         for (int i = 0; i < contents.length; i++) {
             ItemStack item = contents[i];
 
+            // 1. Check: Item vorhanden und Custom?
             if (item == null || !CraftEngineItems.isCustomItem(item)) continue;
-            if (!Objects.requireNonNull(CraftEngineItems.getCustomItemId(item)).toString().equals(itemID)) continue;
+
+            // 2. Check: ID holen und gegen null prüfen statt requireNonNull
+            String id = String.valueOf(CraftEngineItems.getCustomItemId(item));
+            if (id == null || !id.toString().equals(itemID)) continue;
 
             if (!foundFirst) {
                 foundFirst = true;
             } else {
-                player.getWorld().dropItemNaturally(player.getLocation(), item);
-                player.getInventory().setItem(i, null); // Sicherer als .remove()
+                // Sicherstellen, dass Location und Welt existieren
+                if (player.getLocation() != null && player.getWorld() != null) {
+                    player.getWorld().dropItemNaturally(player.getLocation(), item);
+                    player.getInventory().setItem(i, null);
+                }
             }
         }
     }

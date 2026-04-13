@@ -1,8 +1,5 @@
 package com.crayonsmp.neomUtilities.utils;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -10,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatUtil {
-    private static final MiniMessage MM = MiniMessage.miniMessage();
 
     private static final Pattern START_WITH_COLOR_PATTERN = Pattern.compile(
             "^(?:[&§][0-9a-fk-or]|#[a-fA-F0-9]{6}).*",
@@ -35,10 +31,6 @@ public class ChatUtil {
 
     public static String alternateColor(String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
-    }
-
-    public static Component miniMessage(String message, TagResolver... tagResolvers) {
-        return MM.deserialize(alternateColor(message), tagResolvers);
     }
 
     public static String hex(String message) {

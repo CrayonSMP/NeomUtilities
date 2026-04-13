@@ -7,3 +7,7 @@ website: https://crayonsmp.com/
 depend:
   - CraftEngine
 softdepend: [PlaceholderAPI]
+commands:
+  neomreload:
+    description: Reloads the plugin.
+    usage: /neomreload

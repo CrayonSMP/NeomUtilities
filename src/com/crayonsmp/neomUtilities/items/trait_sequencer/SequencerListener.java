@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +23,16 @@ public class SequencerListener implements Listener {
 
     private final SequncerInventoryService inventoryService = new SequncerInventoryService();
     private final java.util.Map<java.util.UUID, Long> clickDelay = new java.util.HashMap<>();
-    private static final long DELAY_MS = 200; // 200 Millisekunden Delay
+    private SequencerService sequencerService = NeomUtilities.getSequencerService();
+    private static final long DELAY_MS = 200;
 
     @EventHandler
     public void onCustomBlockClick(CustomBlockInteractEvent event) {
-        String requiredId = NeomUtilities.getSequencerService().getBlockId();
+        String requiredId = sequencerService.getBlockId();
 
         if (requiredId == null || requiredId.isEmpty()) return;
+
+        if (event.getPlayer().isSneaking() || event.action().equals(CustomBlockInteractEvent.Action.LEFT_CLICK)) return;
 
         if (!event.customBlock().id().toString().equals(requiredId)) return;
 
@@ -43,37 +47,42 @@ public class SequencerListener implements Listener {
 
         int slot = event.getRawSlot();
 
-        // --- SCHUTZ GEGEN SPAM-RAUSNEHMEN ---
-        // Verhindert SHIFT-Klicks, Tastatur-Zahlen (1-9) und "Einsammeln" (Doppelklick)
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (event.getInventory().getItem(SequencerSlots.INPUT) != null && !event.getInventory().getItem(SequencerSlots.INPUT).getType().equals(Material.AIR)) {
+                    event.getInventory().setItem(SequencerSlots.CRAFT_BUTTON, sequencerService.getCraftButton(true));
+                } else {
+                    event.getInventory().setItem(SequencerSlots.CRAFT_BUTTON, sequencerService.getCraftButton(false));
+                }
+            }
+        }.runTaskLater(NeomUtilities.getInstance(), 1L);
+
         if (event.getClick().isShiftClick() || event.getClick().isKeyboardClick() || event.getClick() == org.bukkit.event.inventory.ClickType.DOUBLE_CLICK) {
             event.setCancelled(true);
-            // Wir erlauben Shift-Klicks nur im eigenen Inventar, nicht im GUI oben
-            if (slot < 54) return;
+            return;
         }
 
         ItemStack cursor = event.getCursor();
         ItemStack currentInSlot = event.getCurrentItem();
 
-        // --- CLICK DELAY ---
         long now = System.currentTimeMillis();
         if (clickDelay.getOrDefault(player.getUniqueId(), 0L) > now) {
-            event.setCancelled(true); // Wichtig: Auch während des Delays abbrechen!
+            event.setCancelled(true);
             return;
         }
         clickDelay.put(player.getUniqueId(), now + DELAY_MS);
 
         event.setCancelled(true);
 
-        // 1. CRAFT BUTTON
-        if (slot == SequencerSlots.CRAFT_BUTTON) {
-            inventoryService.tryToCraft(player);
-            return;
-        }
+            if (slot == SequencerSlots.CRAFT_BUTTON) {
+                inventoryService.tryToCraft(player);
+                return;
+            }
 
-        // 2. MODIFIKATOR ICONS (Obere Reihe)
+
         for (int i = 0; i < SequencerSlots.MODIFIERS.length; i++) {
             if (slot == SequencerSlots.MODIFIERS[i]) {
-                // Doppelte Absicherung: Wenn jemand versucht das Item zu "heben"
                 event.setResult(org.bukkit.event.Event.Result.DENY);
 
                 int itemSlotBelow = slot + 9;
@@ -99,17 +108,14 @@ public class SequencerListener implements Listener {
 
                 String[] types = {"Structural", "Morphological", "Climatic", "Organic", "Energy", "Kinetic", "Botanical"};
 
-                // Icon aktualisieren
-                event.getInventory().setItem(slot, NeomUtilities.getSequencerService().getModifierIcon(types[i], nextTier));
-                player.playSound(player.getLocation(), org.bukkit.Sound.UI_BUTTON_CLICK, 1f, 1f);
+                event.getInventory().setItem(slot, sequencerService.getModifierIcon(types[i], nextTier));
+                player.playSound(player.getLocation(), sequencerService.SOUND_BUTTON_CLICK, sequencerService.SOUND_BUTTON_CLICK_VOLUME, sequencerService.SOUND_BUTTON_CLICK_PITCH);
 
-                // Wichtig: Nach dem Setzen des Items nochmal canceln
                 event.setCancelled(true);
                 return;
             }
         }
 
-        // 3. MODIFIKATOR ITEM SLOTS (Untere Reihe - Aktivierung)
         int modifierIndex = -1;
         for (int i = 0; i < SequencerSlots.MODIFIERS.length; i++) {
             if (slot == (SequencerSlots.MODIFIERS[i] + 9)) {
@@ -119,7 +125,6 @@ public class SequencerListener implements Listener {
         }
 
         if (modifierIndex != -1) {
-            // Logik: Nur 1 Item erlauben
             if (cursor != null && cursor.getType() != Material.AIR) {
                 if (currentInSlot != null && currentInSlot.getType() != Material.AIR) return;
 
@@ -134,25 +139,21 @@ public class SequencerListener implements Listener {
 
                 event.setCurrentItem(singleItem);
             } else {
-                // Item wird herausgenommen
                 event.setCancelled(false);
             }
 
-            // Icon Update (Tier 0 oder 1)
             int finalIndex = modifierIndex;
             int iconSlot = SequencerSlots.MODIFIERS[modifierIndex];
             Bukkit.getScheduler().runTask(NeomUtilities.getInstance(), () -> {
                 ItemStack itemNow = event.getInventory().getItem(slot);
                 String[] types = {"Structural", "Morphological", "Climatic", "Organic", "Energy", "Kinetic", "Botanical"};
 
-                // Wenn Item weg -> Tier 0, wenn Item rein -> Tier 1
                 int newTier = (itemNow != null && itemNow.getType() != Material.AIR) ? 1 : 0;
-                event.getInventory().setItem(iconSlot, NeomUtilities.getSequencerService().getModifierIcon(types[finalIndex], newTier));
+                event.getInventory().setItem(iconSlot, sequencerService.getModifierIcon(types[finalIndex], newTier));
             });
             return;
         }
 
-        // 4. SONSTIGE SLOTS
         if (slot == SequencerSlots.RESULT) {
             if (cursor == null || cursor.getType() == Material.AIR) event.setCancelled(false);
         } else if (slot == SequencerSlots.INPUT || slot > 53) {

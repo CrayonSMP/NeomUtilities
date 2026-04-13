@@ -15,7 +15,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.inventory.meta.components.consumable.ConsumableComponent;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
