@@ -7,12 +7,14 @@ import com.crayonsmp.neomUtilities.model.TraitSequence;
 import com.crayonsmp.neomUtilities.utils.ChatUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -50,8 +52,12 @@ public class SequncerInventoryService {
 
         ItemStack inputItem = inv.getItem(SequencerSlots.INPUT);
         assert inputItem != null;
-        ItemStack tempInputItem = new ItemStack(inputItem);
-        tempInputItem.removeEnchantments();
+        ItemStack tempInputItem;
+        if (CraftEngineItems.isCustomItem(inputItem)) {
+            tempInputItem = CraftEngineItems.byId(CraftEngineItems.getCustomItemId(inputItem)).buildItemStack((inputItem.getAmount()));
+        } else {
+            tempInputItem = new ItemStack(inputItem.getType(), inputItem.getAmount());
+        }
 
         if (tempInputItem == null || tempInputItem.getType() == Material.AIR) {
             return false;
@@ -106,7 +112,16 @@ public class SequncerInventoryService {
             ItemStack finalResult = resultTemplate.clone();
             finalResult.setAmount((currentInResult != null ? currentInResult.getAmount() : 0) + craftAmount);
 
-            if (match.isTransferEnchantments) finalResult.addEnchantments(inputItem.getEnchantments());
+            if (match.isTransferEnchantments && !inputItem.getEnchantments().isEmpty()) finalResult.addEnchantments(inputItem.getEnchantments());
+            if (inputItem.getItemMeta() instanceof org.bukkit.inventory.meta.Damageable inputDamageable) {
+                org.bukkit.inventory.meta.ItemMeta resultMeta = finalResult.getItemMeta();
+
+                if (resultMeta instanceof org.bukkit.inventory.meta.Damageable resultDamageable) {
+                    // Überträgt den aktuellen Schaden vom Input auf das Resultat
+                    resultDamageable.setDamage(inputDamageable.getDamage());
+                    finalResult.setItemMeta(resultMeta);
+                }
+            }
 
             inv.setItem(SequencerSlots.RESULT, finalResult);
 
