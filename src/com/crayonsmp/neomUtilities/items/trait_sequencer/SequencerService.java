@@ -7,6 +7,7 @@ import com.crayonsmp.neomUtilities.model.TraitSequence;
 import com.crayonsmp.neomUtilities.utils.ChatUtil;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.core.util.Key;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -19,6 +20,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class SequencerService {
@@ -26,8 +28,8 @@ public class SequencerService {
     public static final NamespacedKey TIER_KEY = new NamespacedKey(NeomUtilities.getInstance(), "sequencer_tier");
     private String blockId;
     private String InvName;
-    public String MASSAGE_CRAFTING_SUCCESS;
-    public String MASSAGE_CRAFTING_FAILURE;
+    public String MESSAGE_CRAFTING_SUCCESS;
+    public String MESSAGE_CRAFTING_FAILURE;
     public Sound SOUND_BUTTON_CLICK;
     public float SOUND_BUTTON_CLICK_VOLUME;
     public float SOUND_BUTTON_CLICK_PITCH;
@@ -50,8 +52,8 @@ public class SequencerService {
         FileConfiguration config = NeomUtilities.getInstance().getConfig();
         this.blockId = config.getString("trait-sequencer.block-id");
         this.InvName = config.getString("trait-sequencer.inv-name");
-        MASSAGE_CRAFTING_FAILURE = config.getString("trait-sequencer.massages.crafting-failed");
-        MASSAGE_CRAFTING_SUCCESS = config.getString("trait-sequencer.massages.crafting-success");
+        MESSAGE_CRAFTING_FAILURE = config.getString("trait-sequencer.messages.crafting-failed");
+        MESSAGE_CRAFTING_SUCCESS = config.getString("trait-sequencer.messages.crafting-success");
         SOUND_BUTTON_CLICK = Sound.valueOf(config.getString("trait-sequencer.sounds.button", "ENTITY_ITEM_PICKUP").toUpperCase());
         SOUND_CRAFTING_FAILURE = Sound.valueOf(config.getString("trait-sequencer.sounds.fail", "ENTITY_ITEM_BREAK").toUpperCase());
         SOUND_CRAFTING_SUCCESS = Sound.valueOf(config.getString("trait-sequencer.sounds.success", "ENTITY_PLAYER_LEVELUP").toUpperCase());
@@ -79,16 +81,27 @@ public class SequencerService {
             TraitSequence sequence = new TraitSequence();
 
             try {
-                if (recipeMap.containsKey("result")) {
-                    sequence.Resoult = buildItem((Map<?, ?>) recipeMap.get("result"));
+                if (recipeMap.get("result") instanceof java.util.Map<?, ?> resultData) {
+                    Object materialObj = resultData.get("material");
+                    if (materialObj != null) {
+                        // Hier sicherstellen, dass das Feld 'result' (nicht Resoult) existiert
+                        sequence.Resoult = buildItem(materialObj.toString());
+                    } else {
+                        logger.warning("[Sequencer] Recipe #" + i + " result has no material!");
+                    }
                 } else {
-                    logger.warning("[Sequencer] Recipe #" + i + " is missing a 'result' item!");
+                    logger.warning("[Sequencer] Recipe #" + i + " is missing a valid 'result' section!");
                 }
 
-                if (recipeMap.containsKey("input")) {
-                    sequence.Input = buildItem((Map<?, ?>) recipeMap.get("input"));
+                if (recipeMap.get("input") instanceof java.util.Map<?, ?> inputData) {
+                    Object materialObj = inputData.get("material");
+                    if (materialObj != null) {
+                        sequence.Input = buildItem(materialObj.toString());
+                    } else {
+                        logger.warning("[Sequencer] Recipe #" + i + " input has no material!");
+                    }
                 } else {
-                    logger.warning("[Sequencer] Recipe #" + i + " is missing an 'input' item!");
+                    logger.warning("[Sequencer] Recipe #" + i + " is missing a valid 'input' section!");
                 }
 
                 if (recipeMap.containsKey("transfer-enchantments")) {
@@ -150,38 +163,25 @@ public class SequencerService {
         logger.info("[Sequencer] Successfully loaded " + recipes.size() + " recipes.");
     }
 
-    private ItemStack buildItem(Map<?, ?> data) {
-        if (data.containsKey("id")) {
-            String customId = (String) data.get("id");
-            try {
-                ItemStack item = CraftEngineItems.byId(Key.from(customId)).buildItemStack();
-                if (data.containsKey("amount")) {
-                    item.setAmount(((Number) data.get("amount")).intValue());
-                }
-                return item;
-            } catch (Exception e) {
-                logger.warning("[Sequencer] Custom Item ID not found: " + customId);
-            }
+    private ItemStack buildItem(String itemNamespace) {
+        // 1. In Custom Items suchen
+        Key itemKey = Key.from(itemNamespace);
+        if (CraftEngineItems.byId(itemKey) != null) {
+            return Objects.requireNonNull(CraftEngineItems.byId(itemKey)).buildItemStack();
         }
 
-        String matName = (String) data.get("material");
-        if (matName == null) {
-            logger.warning("[Sequencer] Item data missing both 'id' and 'material' fields!");
-            return null;
+        // 2. In Standard Minecraft Materialien suchen
+        // Wir säubern den String und schauen, ob Bukkit ihn kennt
+        String materialName = itemNamespace.replace("minecraft:", "").toUpperCase();
+        Material material = Material.matchMaterial(materialName);
+
+        if (material != null) {
+            return new ItemStack(material);
         }
 
-        try {
-            Material mat = Material.matchMaterial(matName.replace("minecraft:", "").toUpperCase());
-            if (mat == null) {
-                logger.warning("[Sequencer] Unknown Minecraft material: " + matName);
-                return null;
-            }
-            int amount = data.containsKey("amount") ? ((Number) data.get("amount")).intValue() : 1;
-            return new ItemStack(mat, amount);
-        } catch (Exception e) {
-            logger.warning("[Sequencer] Error building vanilla item for: " + matName);
-            return null;
-        }
+        // 3. Fallback: Wenn nichts gefunden wurde, loggen wir eine Warnung
+        // statt das Plugin mit requireNonNull abstürzen zu lassen
+        return new ItemStack(Material.BARRIER); // Oder null, je nachdem wie du es handelst
     }
 
     public TraitSequence findMatchingRecipe(ItemStack input, List<Modifier> activeModifiers) {

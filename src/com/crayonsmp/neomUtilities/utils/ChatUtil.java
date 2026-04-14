@@ -1,6 +1,6 @@
 package com.crayonsmp.neomUtilities.utils;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor; // WICHTIG: Der richtige Import
 import org.bukkit.command.CommandSender;
 
 import java.util.regex.Matcher;
@@ -18,42 +18,35 @@ public class ChatUtil {
     }
 
     public static String format(String message) {
-        Matcher matcher = START_WITH_COLOR_PATTERN.matcher(message);
+        if (message == null) return "";
 
+        // Zuerst Hex umwandeln (bevor &7 davor geklatscht wird)
+        message = hex(message);
+
+        Matcher matcher = START_WITH_COLOR_PATTERN.matcher(message);
         if (!matcher.matches()) {
             message = "&7" + message;
         }
 
-        String translatedMessage = ChatColor.translateAlternateColorCodes('&', message);
-
-        return hex(translatedMessage);
-    }
-
-    public static String alternateColor(String message) {
+        // Nutzt die statische Methode der Bungee-API
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     public static String hex(String message) {
-        Pattern pattern = Pattern.compile("<#[a-fA-F0-9]{6}>");
+        // Sucht nach <#RRGGBB>
+        Pattern pattern = Pattern.compile("<(#?[a-fA-F0-9]{6})>");
         Matcher matcher = pattern.matcher(message);
         StringBuffer result = new StringBuffer();
 
         while (matcher.find()) {
-            String fullHexCode = matcher.group();
-            String hexCode = fullHexCode.substring(1, fullHexCode.length() - 1);
+            String hexCode = matcher.group(1);
+            // Falls das # fehlt, fügen wir es für die API hinzu
+            if (!hexCode.startsWith("#")) hexCode = "#" + hexCode;
 
-            String replaceSharp = hexCode.replace('#', 'x');
-
-            char[] ch = replaceSharp.toCharArray();
-            StringBuilder builder = new StringBuilder();
-            for (char c : ch) {
-                builder.append("&").append(c);
-            }
-
-            matcher.appendReplacement(result, builder.toString());
+            matcher.appendReplacement(result, ChatColor.of(hexCode).toString());
         }
 
         matcher.appendTail(result);
-        return ChatColor.translateAlternateColorCodes('&', result.toString());
+        return result.toString();
     }
 }

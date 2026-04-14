@@ -114,7 +114,6 @@ public class SequncerInventoryService {
             inv.setItem(SequencerSlots.INPUT, tempInputItem.getAmount() > 0 ? tempInputItem : null);
 
             player.playSound(player.getLocation(), sequencerService.SOUND_CRAFTING_SUCCESS, sequencerService.SOUND_CRAFTING_SUCCESS_VOLUME, sequencerService.SOUND_CRAFTING_SUCCESS_PITCH);
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatUtil.format(sequencerService.MASSAGE_CRAFTING_SUCCESS)));
             return true;
 
         } else {
@@ -134,7 +133,6 @@ public class SequncerInventoryService {
             }
 
             player.closeInventory();
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatUtil.format(sequencerService.MASSAGE_CRAFTING_FAILURE)));
             return false;
         }
     }

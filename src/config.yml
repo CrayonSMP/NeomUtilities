@@ -168,10 +168,6 @@ trait-sequencer:
     success-volume: 1
     success-pitch: 1
 
-  massages:
-    crafting-success: "§aCrafting successful! Your item is ready."
-    crafting-failed: "§cCrafting failed. Better luck next time!"
-
   inv-name: "Trait Sequencer"
   tiers:
     0:
