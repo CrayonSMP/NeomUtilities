@@ -7,5 +7,6 @@ import java.util.List;
 public class TraitSequence {
     public ItemStack Resoult;
     public ItemStack Input;
+    public boolean isTransferEnchantments;
     public List<Modifier> modifiers;
 }

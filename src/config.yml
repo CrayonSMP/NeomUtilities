@@ -214,6 +214,7 @@ trait-sequencer:
   # Modifier Types: Structural, Morphological, Climatic, Organic, Energy, Kinetic, Botanical
   recipes:
     - id: "reinforced_obsidian" # Interne ID zur Identifizierung
+      transfer-enchantments: true # Optional, ob Verzauberungen übertragen werden sollen
       input:
         material: "minecraft:OBSIDIAN"
         amount: 1

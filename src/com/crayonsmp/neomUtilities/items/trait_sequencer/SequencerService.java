@@ -91,6 +91,12 @@ public class SequencerService {
                     logger.warning("[Sequencer] Recipe #" + i + " is missing an 'input' item!");
                 }
 
+                if (recipeMap.containsKey("transfer-enchantments")) {
+                    sequence.isTransferEnchantments = (boolean) recipeMap.get("transfer-enchantments");
+                } else {
+                    sequence.isTransferEnchantments = false;
+                }
+
                 sequence.modifiers = new ArrayList<>();
                 if (recipeMap.containsKey("modifiers")) {
                     List<?> modifierList = (List<?>) recipeMap.get("modifiers");

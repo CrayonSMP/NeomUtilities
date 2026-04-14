@@ -37,6 +37,7 @@ public class SequencerListener implements Listener {
         if (!event.customBlock().id().toString().equals(requiredId)) return;
 
         Player player = event.getPlayer();
+        event.setCancelled(true);
         inventoryService.createSequencerGUI(player);
     }
 
@@ -91,7 +92,6 @@ public class SequencerListener implements Listener {
                 if (currentInSlot == null || currentInSlot.getType() == Material.AIR) return;
 
                 if (itemBelow == null || itemBelow.getType() == Material.AIR) {
-                    player.sendMessage("§cLege erst ein Item in den Slot darunter!");
                     return;
                 }
 

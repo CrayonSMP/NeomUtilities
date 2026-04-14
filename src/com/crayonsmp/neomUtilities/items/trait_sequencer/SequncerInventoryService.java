@@ -49,7 +49,11 @@ public class SequncerInventoryService {
         }
 
         ItemStack inputItem = inv.getItem(SequencerSlots.INPUT);
-        if (inputItem == null || inputItem.getType() == Material.AIR) {
+        assert inputItem != null;
+        ItemStack tempInputItem = new ItemStack(inputItem);
+        tempInputItem.removeEnchantments();
+
+        if (tempInputItem == null || tempInputItem.getType() == Material.AIR) {
             return false;
         }
 
@@ -78,11 +82,11 @@ public class SequncerInventoryService {
             }
         }
 
-        TraitSequence match = sequencerService.findMatchingRecipe(inputItem, activeModifiers);
+        TraitSequence match = sequencerService.findMatchingRecipe(tempInputItem, activeModifiers);
 
         if (match != null) {
             ItemStack resultTemplate = sequencerService.getResult(match);
-            int craftAmount = inputItem.getAmount();
+            int craftAmount = tempInputItem.getAmount();
             ItemStack currentInResult = inv.getItem(SequencerSlots.RESULT);
             int maxStackSize = resultTemplate.getMaxStackSize();
 
@@ -101,10 +105,13 @@ public class SequncerInventoryService {
 
             ItemStack finalResult = resultTemplate.clone();
             finalResult.setAmount((currentInResult != null ? currentInResult.getAmount() : 0) + craftAmount);
+
+            if (match.isTransferEnchantments) finalResult.addEnchantments(inputItem.getEnchantments());
+
             inv.setItem(SequencerSlots.RESULT, finalResult);
 
-            inputItem.setAmount(inputItem.getAmount() - craftAmount);
-            inv.setItem(SequencerSlots.INPUT, inputItem.getAmount() > 0 ? inputItem : null);
+            tempInputItem.setAmount(tempInputItem.getAmount() - craftAmount);
+            inv.setItem(SequencerSlots.INPUT, tempInputItem.getAmount() > 0 ? tempInputItem : null);
 
             player.playSound(player.getLocation(), sequencerService.SOUND_CRAFTING_SUCCESS, sequencerService.SOUND_CRAFTING_SUCCESS_VOLUME, sequencerService.SOUND_CRAFTING_SUCCESS_PITCH);
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatUtil.format(sequencerService.MASSAGE_CRAFTING_SUCCESS)));
