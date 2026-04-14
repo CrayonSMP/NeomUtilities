@@ -287,11 +287,9 @@ public class SequencerService {
             List<String> lore = config.getStringList("trait-sequencer.modifiers." + type + ".lore");
             String tierDisplay = ChatUtil.format(config.getString("trait-sequencer.tiers." + tier + ".Display", "Tier " + tier));
 
-            lore.forEach(line -> {
-                if (line.contains("{tier}")) {
-                    line = line.replace("{tier}", tierDisplay);
-                }
-                line = ChatUtil.format(line);
+            lore.replaceAll(line -> {
+                String processed = line.replace("{tier}", tierDisplay);
+                return ChatUtil.format(processed);
             });
 
             meta.setDisplayName(display);
