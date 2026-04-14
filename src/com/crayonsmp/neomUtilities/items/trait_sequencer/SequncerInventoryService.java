@@ -1,5 +1,7 @@
 package com.crayonsmp.neomUtilities.items.trait_sequencer;
 
+import com.crayonsmp.api.provider.CrayonDefaultProvider;
+import com.crayonsmp.api.waystone.IWaystoneService;
 import com.crayonsmp.neomUtilities.NeomUtilities;
 import com.crayonsmp.neomUtilities.enums.ModifierType;
 import com.crayonsmp.neomUtilities.model.Modifier;

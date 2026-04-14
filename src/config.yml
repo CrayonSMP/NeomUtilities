@@ -240,3 +240,11 @@ trait-sequencer:
         - type: "Botanical"
           tier: 2
           input: "minecraft:MELON_SLICE"
+
+pocket-waystone:
+    item-id: "neom:pocket_waystone"
+    open-sound: "minecraft:item.ender_pearl.throw"
+    open-volume: 1
+    open-pitch: 1
+    durability-loss: 1
+    cooldown: 100

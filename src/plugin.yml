@@ -6,7 +6,7 @@ authors: [ TamashiiMon ]
 website: https://crayonsmp.com/
 depend:
   - CraftEngine
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, CrayonDefaults]
 commands:
   neomreload:
     description: Reloads the plugin.

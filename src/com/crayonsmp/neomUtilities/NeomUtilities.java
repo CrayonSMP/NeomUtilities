@@ -1,16 +1,20 @@
 package com.crayonsmp.neomUtilities;
 
+import com.crayonsmp.api.provider.CrayonDefaultProvider;
 import com.crayonsmp.neomUtilities.commands.ReloadCommand;
 import com.crayonsmp.neomUtilities.items.biomchanger.BiomChangerService;
 import com.crayonsmp.neomUtilities.items.duralki.DuralkiListener;
 import com.crayonsmp.neomUtilities.items.gauntlet.GauntletListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchService;
+import com.crayonsmp.neomUtilities.items.pocket_waystone.PocketWaystoneService;
 import com.crayonsmp.neomUtilities.items.trait_sequencer.SequencerService;
 import com.crayonsmp.neomUtilities.utils.ActionService;
 import com.crayonsmp.neomUtilities.utils.ConditionService;
 import com.crayonsmp.neomUtilities.utils.EntityListener;
 import com.crayonsmp.neomUtilities.utils.VariableService;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -22,6 +26,7 @@ public final class NeomUtilities extends JavaPlugin {
     private static VariableService variableService;
     private static BiomChangerService biomChangerService;
     private static SequencerService sequencerService;
+    private static PocketWaystoneService pocketWaystoneService;
 
     @Override
     public void onEnable() {
@@ -38,6 +43,13 @@ public final class NeomUtilities extends JavaPlugin {
         biomChangerService = new BiomChangerService();
         biomChangerService.init(this);
 
+        if (Bukkit.getPluginManager().isPluginEnabled("CrayonDefault")) {
+            pocketWaystoneService = new PocketWaystoneService();
+            pocketWaystoneService.init(this);
+        } else {
+            getLogger().warning("CrayonDefaults not found. All features depand on this plugin will be disabled.");
+        }
+
         HatchService.loadAllChunksFromPDC();
         HatchService.startTicking();
 
@@ -52,6 +64,9 @@ public final class NeomUtilities extends JavaPlugin {
     @Override
     public void onDisable() {
         HatchService.saveAllChunksToPDC();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            CrayonDefaultProvider.get().getWaystoneService().removeWaystone(player.getUniqueId().toString());
+        }
     }
 
     // In NeomUtilities.java ergänzen:
