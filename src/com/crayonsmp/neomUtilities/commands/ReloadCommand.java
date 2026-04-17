@@ -16,14 +16,7 @@ public class ReloadCommand implements CommandExecutor {
             return true;
         }
 
-        NeomUtilities.getInstance().reloadConfig();
-
-        var config = NeomUtilities.getInstance().getConfig();
-        NeomUtilities.getVariableService().loadVariables(config);
-
-        NeomUtilities.getBiomChangerService().loadConfig();
-        NeomUtilities.getSequencerService().loadRecipes();
-        HatchService.reload();
+        NeomUtilities.reload();
 
 
         sender.sendMessage("§a[NeomUtilities] Reload abgeschlossen!");

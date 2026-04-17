@@ -164,24 +164,32 @@ public class SequencerService {
     }
 
     private ItemStack buildItem(String itemNamespace) {
+        if (itemNamespace == null || itemNamespace.isEmpty()) {
+            NeomUtilities.getInstance().getLogger().warning("buildItem wurde mit einem leeren Namespace aufgerufen!");
+            return new ItemStack(Material.BARRIER);
+        }
+
         // 1. In Custom Items suchen
         Key itemKey = Key.from(itemNamespace);
-        if (CraftEngineItems.byId(itemKey) != null) {
-            return Objects.requireNonNull(CraftEngineItems.byId(itemKey)).buildItemStack();
+        var customItem = CraftEngineItems.byId(itemKey); // Einmalige Abfrage
+
+        if (customItem != null) {
+            return customItem.buildItemStack();
         }
 
         // 2. In Standard Minecraft Materialien suchen
-        // Wir säubern den String und schauen, ob Bukkit ihn kennt
         String materialName = itemNamespace.replace("minecraft:", "").toUpperCase();
         Material material = Material.matchMaterial(materialName);
 
-        if (material != null) {
+        if (material != null && material.isItem()) { // Sicherstellen, dass es kein reiner Block (wie AIR) ist
             return new ItemStack(material);
         }
 
-        // 3. Fallback: Wenn nichts gefunden wurde, loggen wir eine Warnung
-        // statt das Plugin mit requireNonNull abstürzen zu lassen
-        return new ItemStack(Material.BARRIER); // Oder null, je nachdem wie du es handelst
+        // 3. Fallback & Debugging
+        NeomUtilities.getInstance().getLogger().severe(String.format("[Debug] Item konnte nicht erstellt werden: '%s'", itemNamespace));
+        NeomUtilities.getInstance().getLogger().info("Stelle sicher, dass der Namespace korrekt ist oder das Material in dieser Bukkit-Version existiert.");
+
+        return new ItemStack(Material.BARRIER);
     }
 
     public TraitSequence findMatchingRecipe(ItemStack input, List<Modifier> activeModifiers) {
