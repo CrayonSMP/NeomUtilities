@@ -174,7 +174,7 @@ public class SequencerService {
         var customItem = CraftEngineItems.byId(itemKey); // Einmalige Abfrage
 
         if (customItem != null) {
-            return customItem.buildItemStack();
+            return customItem.buildBukkitItem();
         }
 
         // 2. In Standard Minecraft Materialien suchen
@@ -248,7 +248,7 @@ public class SequencerService {
             if (config.isString(pathActivated)) {
                 String id = config.getString(pathActivated);
                 try {
-                    return CraftEngineItems.byId(Key.from(id)).buildItemStack();
+                    return CraftEngineItems.byId(Key.from(id)).buildBukkitItem();
                 } catch (Exception e) {
                     return new ItemStack(Material.ANVIL);
                 }
@@ -259,7 +259,7 @@ public class SequencerService {
         if (config.isString(pathActivated)) {
             String id = config.getString(pathDeactivated);
             try {
-                return CraftEngineItems.byId(Key.from(id)).buildItemStack();
+                return CraftEngineItems.byId(Key.from(id)).buildBukkitItem();
             } catch (Exception e) {
                 return new ItemStack(Material.ANVIL);
             }
@@ -282,7 +282,7 @@ public class SequencerService {
                 Material mat = Material.matchMaterial(id.replace("minecraft:", "").toUpperCase());
                 return (mat != null) ? new ItemStack(mat) : new ItemStack(Material.BARRIER);
             } else {
-                return CraftEngineItems.byId(Key.from(id)).buildItemStack();
+                return CraftEngineItems.byId(Key.from(id)).buildBukkitItem();
             }
         } catch (Exception e) {
             logger.warning("[Sequencer] Could not load item for Tier " + tier + " (ID: " + id + ")");
@@ -325,7 +325,7 @@ public class SequencerService {
                 if (id.startsWith("minecraft:")) {
                     return new ItemStack(Material.valueOf(id.replace("minecraft:", "").toUpperCase()));
                 }
-                return CraftEngineItems.byId(Key.from(id)).buildItemStack();
+                return CraftEngineItems.byId(Key.from(id)).buildBukkitItem();
             } catch (Exception e) {
                 return new ItemStack(Material.COAL);
             }

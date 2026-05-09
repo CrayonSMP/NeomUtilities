@@ -56,7 +56,9 @@ public class SequncerInventoryService {
         assert inputItem != null;
         ItemStack tempInputItem;
         if (CraftEngineItems.isCustomItem(inputItem)) {
-            tempInputItem = CraftEngineItems.byId(CraftEngineItems.getCustomItemId(inputItem)).buildItemStack((inputItem.getAmount()));
+
+            tempInputItem = CraftEngineItems.byId(CraftEngineItems.getCustomItemId(inputItem)).buildBukkitItem();
+            tempInputItem.setAmount(inputItem.getAmount());
         } else {
             tempInputItem = new ItemStack(inputItem.getType(), inputItem.getAmount());
         }

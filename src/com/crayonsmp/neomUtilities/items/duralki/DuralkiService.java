@@ -86,7 +86,7 @@ public class DuralkiService {
 
     private static ItemStack createItemStack(String id) {
         if (CraftEngineItems.byId(Key.from(id)) != null) {
-            return CraftEngineItems.byId(Key.from(id)).buildItemStack();
+            return CraftEngineItems.byId(Key.from(id)).buildBukkitItem();
         }
 
         Material mat = Material.matchMaterial(id);
