@@ -1,4 +1,12 @@
 # The Duralki configs.
+ender-pouch:
+    # The CraftEngine Item ID.
+    item-id: "tamashii:ender-pouch"
+    # The sound played when teleporting items.
+    open-sound: "minecraft:item.ender_pearl.throw"
+    open-volume: 1
+    open-pitch: 1
+
 duralki:
   # The CraftEngine Item ID.
   item-id: "neom:duralki"

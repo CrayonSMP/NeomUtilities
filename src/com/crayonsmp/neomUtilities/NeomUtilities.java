@@ -28,6 +28,7 @@ public final class NeomUtilities extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(new CraftEngineListener(), this);
         variableService = new VariableService();
@@ -57,6 +58,7 @@ public final class NeomUtilities extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GauntletListener(this), this);
         getServer().getPluginManager().registerEvents(new HatchListener(), this);
         getServer().getPluginManager().registerEvents(new EntityListener(), this);
+        }, 120L);
     }
 
     @Override
