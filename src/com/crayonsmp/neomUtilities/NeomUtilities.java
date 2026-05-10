@@ -4,6 +4,7 @@ import com.crayonsmp.api.provider.CrayonDefaultProvider;
 import com.crayonsmp.neomUtilities.commands.ReloadCommand;
 import com.crayonsmp.neomUtilities.items.biomchanger.BiomChangerService;
 import com.crayonsmp.neomUtilities.items.duralki.DuralkiListener;
+import com.crayonsmp.neomUtilities.items.ender_pouch.EnderPouchService;
 import com.crayonsmp.neomUtilities.items.gauntlet.GauntletListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchService;
@@ -24,6 +25,7 @@ public final class NeomUtilities extends JavaPlugin {
     private static BiomChangerService biomChangerService;
     private static SequencerService sequencerService;
     private static PocketWaystoneService pocketWaystoneService;
+    private static EnderPouchService enderPouchService;
 
     @Override
     public void onEnable() {
@@ -41,6 +43,9 @@ public final class NeomUtilities extends JavaPlugin {
 
         biomChangerService = new BiomChangerService();
         biomChangerService.init(this);
+
+        enderPouchService = new EnderPouchService();
+        enderPouchService.init(this);
 
         if (Bukkit.getPluginManager().isPluginEnabled("CrayonDefault")) {
             pocketWaystoneService = new PocketWaystoneService();
