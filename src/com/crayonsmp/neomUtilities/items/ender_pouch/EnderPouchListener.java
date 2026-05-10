@@ -1,6 +1,7 @@
 package com.crayonsmp.neomUtilities.items.ender_pouch;
 
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,6 +22,7 @@ public class EnderPouchListener implements Listener {
         if (CraftEngineItems.isCustomItem(item) && Objects.equals(CraftEngineItems.getCustomItemId(item), enderPouchService.getEnderPouchKey())) {
             Player player = e.getPlayer();
             player.openInventory(player.getEnderChest());
+            player.playSound(player.getLocation(), enderPouchService.getSound(), enderPouchService.getVolume(), enderPouchService.getPitch());
         }
     }
 }
