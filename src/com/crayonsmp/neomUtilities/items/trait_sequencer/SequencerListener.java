@@ -21,13 +21,14 @@ import java.util.List;
 
 public class SequencerListener implements Listener {
 
-    private final SequncerInventoryService inventoryService = new SequncerInventoryService();
+    private final SequncerInventoryService inventoryService;
     private final java.util.Map<java.util.UUID, Long> clickDelay = new java.util.HashMap<>();
-    private SequencerService sequencerService;
+    private final SequencerService sequencerService;
     private static final long DELAY_MS = 200;
 
     public SequencerListener(SequencerService sequencerService) {
         this.sequencerService = sequencerService;
+        inventoryService = new SequncerInventoryService(sequencerService);
     }
 
     @EventHandler

@@ -24,8 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SequncerInventoryService {
-    private SequencerService sequencerService = NeomUtilities.getSequencerService();
+    private final SequencerService sequencerService;
     private List<Inventory> invs = new ArrayList<>();
+
+    public SequncerInventoryService(SequencerService sequencerService) {
+        this.sequencerService = sequencerService;
+    }
 
     public Inventory createSequencerGUI(Player player) {
         Inventory gui = Bukkit.createInventory(null, 54, ChatUtil.format(sequencerService.getInvName()));
