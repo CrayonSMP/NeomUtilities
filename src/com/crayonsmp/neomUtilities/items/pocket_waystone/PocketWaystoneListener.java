@@ -5,20 +5,17 @@ import com.crayonsmp.api.events.WaystoneTeleportEvent;
 import com.crayonsmp.api.provider.CrayonDefaultProvider;
 import com.crayonsmp.neomUtilities.NeomUtilities;
 import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class PocketWaystoneListener implements Listener {
@@ -29,8 +26,8 @@ public class PocketWaystoneListener implements Listener {
         this.service = service;
     }
 
-    private HashMap<UUID, ItemStack> playersInGUIs = new HashMap<>();
-    
+    private final HashMap<UUID, ItemStack> playersInGUIs = new HashMap<>();
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
@@ -51,29 +48,47 @@ public class PocketWaystoneListener implements Listener {
             }
         }
     }
-    
+
     @EventHandler
     public void onGUIClose(WaaystoneGUICloseEvent e) {
-        if (!playersInGUIs.containsKey(e.getPlayer().getUniqueId())) return;
         playersInGUIs.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler
     public void onPlayerTeleport(WaystoneTeleportEvent e) {
-        if (!playersInGUIs.containsKey(e.getPlayer().getUniqueId())) return;
-        applyDamage(playersInGUIs.get(e.getPlayer().getUniqueId()), NeomUtilities.getInstance().getConfig().getInt("pocket-waystone.durability-loss", 1), e.getPlayer());
-        playersInGUIs.remove(e.getPlayer().getUniqueId());
+        Player player = e.getPlayer();
+        if (!playersInGUIs.containsKey(player.getUniqueId())) return;
+
+        ItemStack item = playersInGUIs.get(player.getUniqueId());
+        playersInGUIs.remove(player.getUniqueId());
+
+        if (item != null && service.isPocketWaystoneItem(item)) {
+            applyDamage(player, item);
+        }
     }
 
-    private void applyDamage(ItemStack item, int damage, Player player) {
+    private void applyDamage(Player player, ItemStack item) {
         ItemMeta meta = item.getItemMeta();
-        if (meta instanceof Damageable damageable) {
-            damageable.setDamage(damageable.getDamage() + damage);
+
+        if (!(meta instanceof Damageable waystoneDamage)) {
+            return;
+        }
+
+        FileConfiguration config = NeomUtilities.getInstance().getConfig();
+
+        var maxWaystoneDurability = waystoneDamage.getMaxDamage();
+        var currentWaystoneDamage = waystoneDamage.getDamage();
+        var remainingWaystoneLife = maxWaystoneDurability - currentWaystoneDamage;
+
+        var pointsToDamage = config.getInt("pocket-waystone.durability-loss", 1);
+
+        if (remainingWaystoneLife <= pointsToDamage) {
+            item.setAmount(0);
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
+        } else {
+            var newWaystoneDamage = currentWaystoneDamage + pointsToDamage;
+            waystoneDamage.setDamage(newWaystoneDamage);
             item.setItemMeta(meta);
-            if (damageable.getDamage() >= item.getType().getMaxDurability()) {
-                item.setAmount(0);
-                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
-            }
         }
     }
 }

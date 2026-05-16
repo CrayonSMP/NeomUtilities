@@ -23,8 +23,12 @@ public class SequencerListener implements Listener {
 
     private final SequncerInventoryService inventoryService = new SequncerInventoryService();
     private final java.util.Map<java.util.UUID, Long> clickDelay = new java.util.HashMap<>();
-    private SequencerService sequencerService = NeomUtilities.getSequencerService();
+    private SequencerService sequencerService;
     private static final long DELAY_MS = 200;
+
+    public SequencerListener(SequencerService sequencerService) {
+        this.sequencerService = sequencerService;
+    }
 
     @EventHandler
     public void onCustomBlockClick(CustomBlockInteractEvent event) {

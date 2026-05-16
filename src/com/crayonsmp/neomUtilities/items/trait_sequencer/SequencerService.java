@@ -43,7 +43,7 @@ public class SequencerService {
 
     public SequencerService(Plugin plugin) {
         loadRecipes();
-        plugin.getServer().getPluginManager().registerEvents(new SequencerListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new SequencerListener(this), plugin);
     }
 
     public void loadRecipes() {
