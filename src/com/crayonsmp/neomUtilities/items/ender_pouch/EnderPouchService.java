@@ -12,7 +12,7 @@ public class EnderPouchService {
     private float volume;
     private float pitch;
 
-    public void init(Plugin plugin) {
+    public EnderPouchService(Plugin plugin) {
         FileConfiguration config = NeomUtilities.getInstance().getConfig();
 
         String id = config.getString("ender-pouch.item-id", "tamashii:ender-pouch");

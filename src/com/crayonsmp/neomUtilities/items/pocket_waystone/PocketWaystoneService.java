@@ -10,7 +10,7 @@ import java.util.Objects;
 public class PocketWaystoneService {
     private Key pocketWaystoneKey;
 
-    public void init(Plugin plugin) {
+    public PocketWaystoneService(Plugin plugin) {
         String id = NeomUtilities.getInstance().getConfig().getString("pocket-waystone.item-id", "neom:pocket_waystone");
         if (CraftEngineItems.byId(Key.from(id)) == null) {
             NeomUtilities.getInstance().getLogger().warning("Pocket Waystone item ID '" + id + "' is invalid! Pocket Waystone features will be disabled.");

@@ -256,3 +256,17 @@ pocket-waystone:
     open-pitch: 1
     durability-loss: 1
     cooldown: 100
+
+uranimsword:
+  item-id-activated: "neom:uranium_sword_activated"
+  item-id-deactivated: "neom:uranium_sword_deactivated"
+  deactivate-ticks: 200
+  activate-kill-count: 5
+  activatesound:
+    sound: "minecraft:item.ender_pearl.throw"
+    volume: 1.0
+    pitch: 1.0
+  deactivatesound:
+    sound: "minecraft:item.ender_pearl.throw"
+    volume: 1.0
+    pitch: 1.0

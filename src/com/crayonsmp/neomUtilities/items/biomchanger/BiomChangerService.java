@@ -22,7 +22,7 @@ import java.util.*;
 public class BiomChangerService {
     private static final HashMap<String, BiomChangerSettings> itemSettingsMap = new HashMap<>();
 
-    public void init(Plugin plugin) {
+    public BiomChangerService(Plugin plugin) {
         loadConfig();
         plugin.getServer().getPluginManager().registerEvents(new BiomChangerListener(), plugin);
     }

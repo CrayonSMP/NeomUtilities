@@ -10,6 +10,7 @@ import com.crayonsmp.neomUtilities.items.hatchableblock.HatchListener;
 import com.crayonsmp.neomUtilities.items.hatchableblock.HatchService;
 import com.crayonsmp.neomUtilities.items.pocket_waystone.PocketWaystoneService;
 import com.crayonsmp.neomUtilities.items.trait_sequencer.SequencerService;
+import com.crayonsmp.neomUtilities.items.uraniumsword.UraniumSwordService;
 import com.crayonsmp.neomUtilities.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -26,6 +27,7 @@ public final class NeomUtilities extends JavaPlugin {
     private static SequencerService sequencerService;
     private static PocketWaystoneService pocketWaystoneService;
     private static EnderPouchService enderPouchService;
+    private static UraniumSwordService uraniumSwordService;
 
     @Override
     public void onEnable() {
@@ -38,18 +40,13 @@ public final class NeomUtilities extends JavaPlugin {
         contextService = new ConditionService(variableService);
         actionService = new ActionService(contextService, variableService);
 
-        sequencerService = new SequencerService();
-        sequencerService.init(this);
-
-        biomChangerService = new BiomChangerService();
-        biomChangerService.init(this);
-
-        enderPouchService = new EnderPouchService();
-        enderPouchService.init(this);
+        sequencerService = new SequencerService(this);
+        biomChangerService = new BiomChangerService(this);
+        enderPouchService = new EnderPouchService(this);
+        uraniumSwordService = new UraniumSwordService(this);
 
         if (Bukkit.getPluginManager().isPluginEnabled("CrayonDefault")) {
-            pocketWaystoneService = new PocketWaystoneService();
-            pocketWaystoneService.init(this);
+            pocketWaystoneService = new PocketWaystoneService(this);
         } else {
             getLogger().warning("CrayonDefaults not found. All features depand on this plugin will be disabled.");
         }

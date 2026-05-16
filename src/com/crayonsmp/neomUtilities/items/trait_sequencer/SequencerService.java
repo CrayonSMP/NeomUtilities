@@ -41,7 +41,7 @@ public class SequencerService {
     public float SOUND_CRAFTING_FAILURE_PITCH;
     private final Logger logger = NeomUtilities.getInstance().getLogger();
 
-    public void init(Plugin plugin) {
+    public SequencerService(Plugin plugin) {
         loadRecipes();
         plugin.getServer().getPluginManager().registerEvents(new SequencerListener(), plugin);
     }
